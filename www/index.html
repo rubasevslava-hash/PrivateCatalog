@@ -1,1699 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050505">
 <title>PrivateCatalog</title>
-
 <style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-    margin: 0;
-    width: 100%;
-    min-height: 100%;
-    background: #050507;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
-    overflow-x: hidden;
-}
-
-body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-button, input, textarea {
-    font: inherit;
-}
-
-button {
-    border: 0;
-    color: white;
-    cursor: pointer;
-}
-
-.app {
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at 50% 20%, rgba(255,255,255,.055), transparent 35%),
-        radial-gradient(circle at 0% 80%, rgba(180,0,0,.08), transparent 35%),
-        #050507;
-}
-
-header {
-    height: 74px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-}
-
-.logo {
-    font-size: 22px;
-    font-weight: 750;
-    letter-spacing: -.5px;
-}
-
-.header-button {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-}
-
-.tabs {
-    display: flex;
-    gap: 8px;
-    padding: 0 18px 14px;
-}
-
-.tab {
-    padding: 10px 17px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.055);
-    color: #8f8f96;
-    border: 1px solid rgba(255,255,255,.06);
-    font-size: 14px;
-}
-
-.tab.active {
-    background: #fff;
-    color: #09090b;
-}
-
-/* DECK */
-
-.deck-wrap {
-    position: relative;
-    width: 100%;
-    height: calc(100vh - 175px);
-    min-height: 570px;
-    overflow: hidden;
-}
-
-.deck {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.profile-card {
-    position: absolute;
-    top: 8px;
-    width: min(82vw, 390px);
-    height: calc(100% - 16px);
-    max-height: 690px;
-    border-radius: 30px;
-    overflow: hidden;
-    background: #111114;
-    border: 1px solid rgba(255,255,255,.1);
-    box-shadow: 0 25px 70px rgba(0,0,0,.55);
-    transition: transform .35s ease, opacity .35s ease;
-    user-select: none;
-    touch-action: pan-y;
-}
-
-.profile-card.current {
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-}
-
-.profile-card.prev {
-    left: -52%;
-    transform: scale(.94);
-    opacity: .55;
-    z-index: 2;
-}
-
-.profile-card.next {
-    left: 52%;
-    transform: scale(.94);
-    opacity: .55;
-    z-index: 2;
-}
-
-.card-media {
-    position: absolute;
-    inset: 0;
-    background: #151519;
-}
-
-.card-media img,
-.card-media video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.card-overlay {
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(to bottom, rgba(0,0,0,.15), transparent 30%),
-        linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
-    pointer-events: none;
-}
-
-.media-dots {
-    position: absolute;
-    top: 16px;
-    left: 15px;
-    right: 15px;
-    display: flex;
-    gap: 5px;
-    z-index: 5;
-}
-
-.media-dot {
-    flex: 1;
-    height: 3px;
-    border-radius: 10px;
-    background: rgba(255,255,255,.3);
-}
-
-.media-dot.active {
-    background: white;
-}
-
-.card-info {
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
-    z-index: 5;
-}
-
-.profile-name {
-    font-size: 28px;
-    font-weight: 750;
-    letter-spacing: -.7px;
-}
-
-.profile-meta {
-    margin-top: 5px;
-    color: rgba(255,255,255,.78);
-    font-size: 14px;
-}
-
-.profile-description {
-    margin-top: 10px;
-    color: rgba(255,255,255,.7);
-    font-size: 14px;
-    line-height: 1.4;
-    max-width: 320px;
-}
-
-/* swipe hint */
-
-.swipe-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 10;
-    transform: translate(-50%, -50%) rotate(-12deg);
-    border: 2px solid #fff;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-weight: 800;
-    font-size: 23px;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.swipe-label.like {
-    border-color: #ff4040;
-    color: #ff4040;
-}
-
-.swipe-label.skip {
-    border-color: #aaa;
-    color: #aaa;
-    transform: translate(-50%, -50%) rotate(12deg);
-}
-
-/* ACTIONS */
-
-.actions {
-    position: absolute;
-    bottom: 16px;
-    left: 0;
-    right: 0;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    pointer-events: none;
-}
-
-.action {
-    pointer-events: auto;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: rgba(20,20,23,.92);
-    border: 1px solid rgba(255,255,255,.09);
-    box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    font-size: 23px;
-}
-
-.action.main {
-    width: 64px;
-    height: 64px;
-    background: #fff;
-    color: #08080a;
-    font-size: 27px;
-}
-
-.action.like.active {
-    background: #ff3838;
-    color: white;
-}
-
-/* EMPTY */
-
-.empty {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #77777e;
-    text-align: center;
-    padding: 40px;
-}
-
-/* ADMIN / LOGIN */
-
-#loginBox,
-.admin-panel {
-    display: none;
-    padding: 20px;
-}
-
-.panel-card {
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 24px;
-    padding: 18px;
-    margin-bottom: 14px;
-    backdrop-filter: blur(20px);
-}
-
-.panel-title {
-    font-size: 24px;
-    font-weight: 750;
-    margin: 5px 0 20px;
-}
-
-input,
-textarea {
-    width: 100%;
-    background: rgba(255,255,255,.055);
-    color: white;
-    border: 1px solid rgba(255,255,255,.09);
-    border-radius: 15px;
-    padding: 13px;
-    margin: 5px 0 11px;
-    outline: none;
-}
-
-input:focus,
-textarea:focus {
-    border-color: rgba(255,255,255,.3);
-}
-
-textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-.file-box {
-    position: relative;
-    border: 1px dashed rgba(255,255,255,.2);
-    border-radius: 18px;
-    padding: 20px;
-    text-align: center;
-    margin: 8px 0 13px;
-    background: rgba(255,255,255,.035);
-}
-
-.file-box input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    margin: 0;
-    cursor: pointer;
-}
-
-.file-title {
-    font-weight: 650;
-}
-
-.file-subtitle {
-    color: #85858c;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.primary {
-    width: 100%;
-    padding: 14px;
-    border-radius: 16px;
-    background: white;
-    color: #050507;
-    font-weight: 700;
-}
-
-.secondary {
-    width: 100%;
-    padding: 13px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.07);
-}
-
-.admin-media-preview {
-    display: flex;
-    gap: 7px;
-    overflow-x: auto;
-    margin: 10px 0;
-}
-
-.admin-media-preview img,
-.admin-media-preview video {
-    width: 70px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-.admin-item {
-    padding: 15px;
-    background: rgba(255,255,255,.04);
-    border-radius: 18px;
-    margin-bottom: 10px;
-}
-
-.admin-item strong {
-    font-size: 17px;
-}
-
-.admin-buttons {
-    display: flex;
-    gap: 8px;
-}
-
-.admin-buttons button {
-    flex: 1;
-    padding: 11px;
-    border-radius: 13px;
-}
-
-.save {
-    background: #fff;
-    color: #050507;
-}
-
-.delete {
-    background: #401919;
-    color: #ff8d8d;
-}
-
-.back {
-    margin-bottom: 15px;
-    background: rgba(255,255,255,.07);
-    padding: 11px 15px;
-    border-radius: 14px;
-}
-
-.login-error {
-    display: none;
-    color: #ff6868;
-    margin: 10px 0;
-    font-size: 14px;
-}
-
-.selected-files {
-    color: #999;
-    font-size: 12px;
-    margin-bottom: 10px;
-}
-
-/* LIKE ANIMATION */
-
-.like-flash {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    pointer-events: none;
-    background: rgba(255,35,35,.08);
-    opacity: 0;
-}
-
-.like-heart {
-    position: fixed;
-    z-index: 101;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) scale(.4);
-    font-size: 100px;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.like-heart.animate {
-    animation: heartPop .65s ease forwards;
-}
-
-.like-flash.animate {
-    animation: flash .45s ease;
-}
-
-@keyframes heartPop {
-    0% {
-        opacity: 0;
-        transform: translate(-50%,-50%) scale(.4);
-    }
-    35% {
-        opacity: 1;
-        transform: translate(-50%,-50%) scale(1.15);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%,-50%) scale(1.4);
-    }
-}
-
-@keyframes flash {
-    0% { opacity: 0; }
-    30% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-@media (min-width: 700px) {
-    .profile-card {
-        width: 390px;
-    }
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#050505;--card:#111214;--card2:#17181b;--text:#f5f5f5;--muted:#92949a;--line:#292a2e;--red:#e53935}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;height:100%;overflow:hidden}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+button,input,textarea{font:inherit}
+button{border:0;color:inherit}
+.app{height:100%;display:flex;flex-direction:column}
+header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #17181a;background:rgba(5,5,5,.9);backdrop-filter:blur(20px);z-index:10}
+.logo{font-size:21px;font-weight:750;letter-spacing:-.5px}
+.status{font-size:12px;color:var(--muted)}
+main{flex:1;min-height:0;position:relative}
+.page{display:none;height:100%;overflow:hidden}
+.page.active{display:flex;flex-direction:column}
+.deck{position:relative;flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:10px 0 4px}
+.card{position:absolute;width:min(82vw,390px);height:min(72vh,650px);border-radius:30px;background:var(--card);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);transition:transform .24s ease,opacity .24s ease;touch-action:none;user-select:none}
+.card.prev{transform:translateX(-74%) scale(.91);opacity:.38;z-index:1}
+.card.current{transform:translateX(0) scale(1);opacity:1;z-index:3}
+.card.next{transform:translateX(74%) scale(.91);opacity:.38;z-index:1}
+.card.single{position:relative}
+.media{height:100%;width:100%;position:relative;background:#0b0b0c}
+.media img,.media video{width:100%;height:100%;object-fit:cover;display:block}
+.media video{background:#000}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15),transparent 45%,rgba(0,0,0,.9))}
+.cardInfo{position:absolute;left:20px;right:20px;bottom:18px;z-index:2}
+.name{font-size:29px;font-weight:800;letter-spacing:-1px}
+.meta{font-size:14px;color:#ddd;margin-top:3px}
+.desc{font-size:14px;color:#c8c8ca;margin-top:9px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dots{position:absolute;top:12px;left:14px;right:14px;display:flex;gap:4px;z-index:4}
+.dot{height:3px;flex:1;border-radius:99px;background:rgba(255,255,255,.3)}
+.dot.on{background:#fff}
+.mediaNav{position:absolute;inset:0;z-index:3;display:flex}
+.mediaNav div{flex:1}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.actions{height:92px;display:flex;align-items:center;justify-content:center;gap:20px;padding:4px 18px 12px}
+.action{width:58px;height:58px;border-radius:50%;background:#151619;border:1px solid #2b2c30;display:grid;place-items:center;font-size:25px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.action.like{width:66px;height:66px;background:#f5f5f5;color:#0a0a0a;font-size:29px}
+.action:active{transform:scale(.92)}
+.nav{height:68px;border-top:1px solid #191a1c;background:rgba(7,7,8,.96);display:flex;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom)}
+.nav button{background:none;flex:1;color:#72747a;font-size:12px}
+.nav button.active{color:#fff}
+.navIcon{font-size:20px;display:block;margin-bottom:2px}
+.list{padding:16px;overflow:auto;height:100%;-webkit-overflow-scrolling:touch}
+.listItem{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center}
+.thumb{width:64px;height:64px;border-radius:18px;object-fit:cover;background:#17181b}
+.listInfo{flex:1;min-width:0}
+.listName{font-weight:700}
+.listMeta{font-size:13px;color:var(--muted);margin-top:3px}
+.iconBtn{background:#191a1d;border-radius:14px;width:42px;height:42px}
+.admin{padding:16px;overflow:auto;height:100%;-webkit-overflow-scrolling:touch}
+.panel{background:#101113;border:1px solid #202125;border-radius:24px;padding:16px;margin-bottom:14px}
+h2{font-size:21px;margin:0 0 13px}
+label{font-size:12px;color:#a4a5aa;display:block;margin:12px 0 6px}
+input,textarea{width:100%;border:1px solid #292a2e;background:#17181a;color:#fff;border-radius:15px;padding:13px;outline:none}
+textarea{min-height:90px;resize:vertical}
+.primary{width:100%;padding:14px;border-radius:16px;background:#f5f5f5;color:#080808;font-weight:750;margin-top:14px}
+.secondary{width:100%;padding:13px;border-radius:15px;background:#1a1b1e;color:#fff;margin-top:9px}
+.danger{color:#ff6b67}
+.fileBox{border:1px dashed #44464b;border-radius:18px;padding:18px;text-align:center;color:#aaa;margin-top:7px}
+.fileBox input{display:none}
+.selected{font-size:12px;color:#bbb;margin-top:9px;line-height:1.45}
+.adminRow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #222326}
+.adminRow img,.adminRow video{width:58px;height:58px;object-fit:cover;border-radius:14px;background:#000}
+.adminRow .grow{flex:1;min-width:0}
+.small{font-size:12px;color:#999}
+.toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,20px);background:#ededed;color:#090909;padding:11px 16px;border-radius:14px;font-size:13px;font-weight:650;opacity:0;pointer-events:none;transition:.2s;z-index:50;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.heartPop{position:absolute;inset:0;display:grid;place-items:center;z-index:20;font-size:90px;opacity:0;pointer-events:none}
+.heartPop.show{animation:heart .65s ease}
+@keyframes heart{0%{opacity:0;transform:scale(.4)}35%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:scale(1.4)}}
+.login{padding:24px 16px}
+.version{font-size:11px;color:#555;text-align:center;padding:4px}
 </style>
 </head>
-
 <body>
-
 <div class="app">
+<header><div class="logo">PrivateCatalog</div><div class="status" id="storageStatus">Локально</div></header>
 
-<header>
-    <div class="logo">PrivateCatalog</div>
-    <button class="header-button" onclick="openLogin()">⚙</button>
-</header>
+<main>
+<section id="pageDeck" class="page active">
+  <div id="deck" class="deck"></div>
+  <div class="actions">
+    <button class="action" onclick="skipCurrent()">✕</button>
+    <button class="action like" onclick="likeCurrent()">♥</button>
+    <button class="action" onclick="nextMedia()">›</button>
+  </div>
+</section>
 
-<div class="tabs" id="mainTabs">
-    <button class="tab active" id="allBtn" onclick="showAll()">Анкеты</button>
-    <button class="tab" id="favBtn" onclick="showFavorites()">Избранное</button>
+<section id="pageFav" class="page">
+  <div class="list" id="favList"></div>
+</section>
+
+<section id="pageAdmin" class="page">
+  <div id="adminRoot"></div>
+</section>
+</main>
+
+<nav class="nav">
+<button id="tabDeck" class="active" onclick="showPage('deck')"><span class="navIcon">⌂</span>Анкеты</button>
+<button id="tabFav" onclick="showPage('fav')"><span class="navIcon">♥</span>Избранное</button>
+<button id="tabAdmin" onclick="showPage('admin')"><span class="navIcon">⚙</span>Админ</button>
+</nav>
 </div>
-
-<div class="deck-wrap" id="deckWrap">
-    <div class="deck" id="deck"></div>
-
-    <div class="actions">
-        <button class="action" onclick="skipProfile()">×</button>
-        <button class="action main" onclick="likeProfile()">♡</button>
-        <button class="action" onclick="openCurrentProfile()">i</button>
-    </div>
-</div>
-
-<div class="like-flash" id="likeFlash"></div>
-<div class="like-heart" id="likeHeart">♥</div>
-
-<!-- LOGIN -->
-
-<div id="loginBox">
-
-    <div class="panel-card">
-        <div class="panel-title">Администратор</div>
-
-        <input
-            type="password"
-            id="adminPassword"
-            placeholder="Пароль"
-        >
-
-        <button class="primary" onclick="loginAdmin()">
-            Войти
-        </button>
-
-        <div class="login-error" id="loginError">
-            Неверный пароль
-        </div>
-
-        <br>
-
-        <button class="secondary" onclick="closeLogin()">
-            Назад
-        </button>
-    </div>
-
-</div>
-
-<!-- ADMIN -->
-
-<div class="admin-panel" id="adminPanel">
-
-    <button class="back" onclick="exitAdmin()">
-        ← Вернуться
-    </button>
-
-    <div class="panel-title">Админ-панель</div>
-
-    <div class="panel-card">
-
-        <h3>Новая анкета</h3>
-
-        <input
-            id="newName"
-            placeholder="Имя"
-        >
-
-        <input
-            id="newAge"
-            type="number"
-            placeholder="Возраст"
-        >
-
-        <input
-            id="newCity"
-            placeholder="Город"
-        >
-
-        <textarea
-            id="newDescription"
-            placeholder="Описание"
-        ></textarea>
-
-        <div class="file-box">
-            <div class="file-title">
-                📸 Фото и видео
-            </div>
-
-            <div class="file-subtitle">
-                Выбрать прямо с телефона
-            </div>
-
-            <input
-                id="newMedia"
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onchange="showSelectedFiles()"
-            >
-        </div>
-
-        <div
-            class="selected-files"
-            id="selectedFiles"
-        >
-            Файлы не выбраны
-        </div>
-
-        <button class="primary" onclick="addProfile()">
-            + Добавить анкету
-        </button>
-
-    </div>
-
-    <h3>Анкеты</h3>
-
-    <div id="adminProfiles"></div>
-
-</div>
-
+<div id="toast" class="toast"></div>
 <script>
+const DB_NAME="PrivateCatalogDB";
+const DB_VERSION=1;
+const STORE_PROFILES="profiles";
+const STORE_MEDIA="media";
+let db;
+let profiles=[];
+let order=[];
+let pos=0;
+let currentMedia={};
+let editingId=null;
+let touchStartX=0,touchStartY=0,touchCard=null;
 
-const ADMIN_PASSWORD = "110123Sex";
+function openDB(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open(DB_NAME,DB_VERSION);
+  req.onupgradeneeded=e=>{
+   const d=e.target.result;
+   if(!d.objectStoreNames.contains(STORE_PROFILES)) d.createObjectStore(STORE_PROFILES,{keyPath:"id"});
+   if(!d.objectStoreNames.contains(STORE_MEDIA)){
+    const s=d.createObjectStore(STORE_MEDIA,{keyPath:"id"});
+    s.createIndex("profileId","profileId",{unique:false});
+   }
+  };
+  req.onsuccess=e=>{db=e.target.result;resolve(db)};
+  req.onerror=()=>reject(req.error);
+ });
+}
+function tx(store,mode="readonly"){return db.transaction(store,mode).objectStore(store)}
+function put(store,obj){return new Promise((res,rej)=>{let r=tx(store,"readwrite").put(obj);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function del(store,id){return new Promise((res,rej)=>{let r=tx(store,"readwrite").delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function getAll(store){return new Promise((res,rej)=>{let r=tx(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function getOne(store,id){return new Promise((res,rej)=>{let r=tx(store).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 
-const defaultProfiles = [
-    {
-        id: 1,
-        name: "Александра",
-        age: 21,
-        city: "Иркутск",
-        description: "Описание анкеты",
-        media: [
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900"
-            }
-        ]
-    },
-    {
-        id: 2,
-        name: "Мария",
-        age: 22,
-        city: "Иркутск",
-        description: "Описание анкеты",
-        media: [
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900"
-            }
-        ]
-    },
-    {
-        id: 3,
-        name: "Елена",
-        age: 20,
-        city: "Иркутск",
-        description: "Описание анкеты",
-        media: [
-            {
-                type: "image",
-                src: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900"
-            }
-        ]
-    }
-];
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600)}
+function vibrate(ms=25){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function esc(s=""){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 
-let profiles = JSON.parse(
-    localStorage.getItem("profiles")
-) || defaultProfiles;
-
-let favorites = JSON.parse(
-    localStorage.getItem("favorites") || "[]"
-);
-
-let deckProfiles = [];
-let currentIndex = 0;
-let currentMedia = 0;
-
-let startX = 0;
-let currentX = 0;
-let dragging = false;
-
-function saveProfiles() {
-    localStorage.setItem(
-        "profiles",
-        JSON.stringify(profiles)
-    );
+async function load(){
+ await openDB();
+ profiles=await getAll(STORE_PROFILES);
+ profiles.sort((a,b)=>b.createdAt-a.createdAt);
+ order=shuffle(profiles.map(p=>p.id));
+ document.getElementById("storageStatus").textContent=`${profiles.length} анкет · локально`;
+ renderDeck();
+ renderFav();
+ renderAdmin();
 }
 
-function getMedia(profile) {
+async function mediaFor(profileId){
+ const all=await getAll(STORE_MEDIA);
+ return all.filter(x=>x.profileId===profileId).sort((a,b)=>a.index-b.index);
+}
+function mediaUrl(m){return URL.createObjectURL(m.blob)}
 
-    if (profile.media && profile.media.length) {
-        return profile.media;
-    }
-
-    if (profile.image) {
-        return [
-            {
-                type: "image",
-                src: profile.image
-            }
-        ];
-    }
-
-    return [];
+async function renderCard(p,cls){
+ const media=await mediaFor(p.id);
+ if(!media.length){
+  return `<article class="card ${cls}" data-id="${p.id}"><div class="media"><div class="empty">Нет медиа</div></div><div class="cardInfo"><div class="name">${esc(p.name)}, ${esc(p.age)}</div><div class="meta">${esc(p.city)}</div><div class="desc">${esc(p.description)}</div></div></article>`;
+ }
+ let idx=currentMedia[p.id]||0;
+ if(idx>=media.length)idx=0;
+ currentMedia[p.id]=idx;
+ const m=media[idx];
+ const url=mediaUrl(m);
+ const mediaHtml=m.type==="video"
+  ? `<video src="${url}" playsinline muted loop autoplay></video>`
+  : `<img src="${url}" draggable="false">`;
+ const dots=media.map((_,i)=>`<span class="dot ${i===idx?"on":""}"></span>`).join("");
+ return `<article class="card ${cls}" data-id="${p.id}">
+   <div class="media">
+    ${mediaHtml}
+    <div class="scrim"></div>
+    <div class="dots">${dots}</div>
+    <div class="mediaNav"><div onclick="prevMedia(event,'${p.id}')"></div><div onclick="nextMedia(event,'${p.id}')"></div></div>
+   </div>
+   <div class="cardInfo"><div class="name">${esc(p.name)}, ${esc(p.age)}</div><div class="meta">${esc(p.city)}</div><div class="desc">${esc(p.description)}</div></div>
+   <div class="heartPop">♥</div>
+ </article>`;
 }
 
-function shuffle(array) {
+async function renderDeck(){
+ const deck=document.getElementById("deck");
+ deck.innerHTML="";
+ if(!order.length){deck.innerHTML='<div class="empty">Пока нет анкет.<br>Добавь первую через «Админ».</div>';return}
+ if(pos>=order.length)pos=0;
+ const ids=[order[(pos-1+order.length)%order.length],order[pos],order[(pos+1)%order.length]];
+ const classes=["prev","current","next"];
+ for(let i=0;i<ids.length;i++){
+  const p=profiles.find(x=>x.id===ids[i]);
+  if(p) deck.insertAdjacentHTML("beforeend",await renderCard(p,classes[i]));
+ }
+ const c=deck.querySelector(".current");
+ if(c){c.addEventListener("pointerdown",pointerDown);c.addEventListener("pointermove",pointerMove);c.addEventListener("pointerup",pointerUp);c.addEventListener("pointercancel",pointerUp)}
+}
+function pointerDown(e){touchStartX=e.clientX;touchStartY=e.clientY;touchCard=e.currentTarget;touchCard.setPointerCapture?.(e.pointerId)}
+function pointerMove(e){
+ if(!touchCard)return;
+ const dx=e.clientX-touchStartX,dy=e.clientY-touchStartY;
+ if(Math.abs(dx)>8){touchCard.style.transition="none";touchCard.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`}
+}
+function pointerUp(e){
+ if(!touchCard)return;
+ const dx=e.clientX-touchStartX;const card=touchCard;touchCard=null;
+ card.style.transition="";
+ if(Math.abs(dx)>90){ if(dx>0) likeCurrent(); else skipCurrent(); }
+ else renderDeck();
+}
+async function likeCurrent(){
+ if(!order.length)return;
+ const p=profiles.find(x=>x.id===order[pos]);if(!p)return;
+ p.favorite=!p.favorite;await put(STORE_PROFILES,p);
+ if(p.favorite){vibrate(28);const hp=document.querySelector(".current .heartPop");if(hp){hp.classList.remove("show");void hp.offsetWidth;hp.classList.add("show")}toast("Добавлено в избранное");}
+ else toast("Убрано из избранного");
+ renderFav();setTimeout(nextPosition,180);
+}
+function skipCurrent(){if(!order.length)return;nextPosition()}
+function nextPosition(){if(!order.length)return;pos=(pos+1)%order.length;renderDeck()}
+async function prevMedia(e,id){e.stopPropagation();const m=await mediaFor(id);if(!m.length)return;currentMedia[id]=(currentMedia[id]-1+m.length)%m.length;renderDeck()}
+async function nextMedia(e){if(e)e.stopPropagation();if(!order.length)return;const id=order[pos],m=await mediaFor(id);if(!m.length)return;currentMedia[id]=((currentMedia[id]||0)+1)%m.length;renderDeck()}
 
-    return [...array].sort(
-        () => Math.random() - 0.5
-    );
+function showPage(which){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById("page"+which.charAt(0).toUpperCase()+which.slice(1)).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+ document.getElementById("tab"+which.charAt(0).toUpperCase()+which.slice(1)).classList.add("active");
+ if(which==="fav")renderFav();
+ if(which==="admin")renderAdmin();
+ if(which==="deck"){order=shuffle(profiles.map(p=>p.id));pos=0;renderDeck()}
 }
 
-function prepareDeck(list) {
-
-    deckProfiles = shuffle(list);
-    currentIndex = 0;
-    currentMedia = 0;
-
-    renderDeck();
+function renderFav(){
+ const el=document.getElementById("favList");
+ const fav=profiles.filter(p=>p.favorite);
+ if(!fav.length){el.innerHTML='<div class="empty">Избранное пусто</div>';return}
+ el.innerHTML=fav.map(p=>`<div class="listItem" onclick="openFavorite('${p.id}')"><div class="thumb" id="thumb-${p.id}"></div><div class="listInfo"><div class="listName">${esc(p.name)}, ${esc(p.age)}</div><div class="listMeta">${esc(p.city)}</div></div><button class="iconBtn" onclick="event.stopPropagation();toggleFavorite('${p.id}')">♥</button></div>`).join("");
+ fav.forEach(async p=>{
+  const m=(await mediaFor(p.id))[0];if(m){const u=mediaUrl(m);document.getElementById("thumb-"+p.id).style.backgroundImage=`url("${u}")`;document.getElementById("thumb-"+p.id).style.backgroundSize="cover";document.getElementById("thumb-"+p.id).style.backgroundPosition="center"}
+ });
 }
+async function openFavorite(id){order=shuffle(profiles.map(p=>p.id));pos=Math.max(0,order.indexOf(Number(id)));showPage("deck")}
+async function toggleFavorite(id){const p=profiles.find(x=>x.id===Number(id));if(!p)return;p.favorite=!p.favorite;await put(STORE_PROFILES,p);renderFav();toast(p.favorite?"Добавлено":"Убрано")}
 
-function renderDeck() {
-
-    const deck = document.getElementById("deck");
-
-    if (!deckProfiles.length) {
-
-        deck.innerHTML = `
-            <div class="empty">
-                <div>
-                    <div style="font-size:40px;margin-bottom:15px;">♡</div>
-                    Здесь пока ничего нет
-                </div>
-            </div>
-        `;
-
-        return;
-    }
-
-    const prev =
-        deckProfiles[currentIndex - 1] || null;
-
-    const current =
-        deckProfiles[currentIndex] || null;
-
-    const next =
-        deckProfiles[currentIndex + 1] || null;
-
-    deck.innerHTML = "";
-
-    if (prev) {
-        deck.appendChild(
-            createCard(prev, "prev")
-        );
-    }
-
-    if (current) {
-        deck.appendChild(
-            createCard(current, "current")
-        );
-    }
-
-    if (next) {
-        deck.appendChild(
-            createCard(next, "next")
-        );
-    }
-
-    setupSwipe();
+function renderAdmin(){
+ const root=document.getElementById("adminRoot");
+ if(root.dataset.auth!=="1"){
+  root.innerHTML=`<div class="login"><div class="panel"><h2>Админ-панель</h2><label>Пароль</label><input id="adminPass" type="password" placeholder="Введите пароль"><button class="primary" onclick="adminLogin()">Войти</button></div><div class="version">PrivateCatalog · локальное хранилище</div></div>`;
+  return;
+ }
+ root.innerHTML=`<div class="admin">
+ <div class="panel">
+  <h2>${editingId?"Редактирование":"Новая анкета"}</h2>
+  <label>Имя</label><input id="fName" placeholder="Имя">
+  <label>Возраст</label><input id="fAge" type="number" inputmode="numeric" placeholder="Возраст">
+  <label>Город</label><input id="fCity" placeholder="Город">
+  <label>Описание</label><textarea id="fDesc" placeholder="Описание"></textarea>
+  <label>Фото и видео</label>
+  <label class="fileBox" for="mediaInput">＋ Выбрать из галереи
+    <input id="mediaInput" type="file" accept="image/*,video/*" multiple onchange="filesSelected()">
+  </label>
+  <div id="selectedFiles" class="selected">Файлы не выбраны</div>
+  <button class="primary" onclick="saveProfile()">${editingId?"Сохранить изменения":"Создать анкету"}</button>
+  ${editingId?'<button class="secondary" onclick="cancelEdit()">Отмена</button>':""}
+ </div>
+ <div class="panel"><h2>Анкеты (${profiles.length})</h2><div id="adminProfiles"></div></div>
+ </div>`;
+ if(editingId){
+  const p=profiles.find(x=>x.id===editingId);
+  if(p){fName.value=p.name||"";fAge.value=p.age||"";fCity.value=p.city||"";fDesc.value=p.description||""}
+ }
+ renderAdminProfiles();
 }
-
-function createCard(profile, position) {
-
-    const card =
-        document.createElement("div");
-
-    card.className =
-        "profile-card " + position;
-
-    const media = getMedia(profile);
-
-    const item =
-        media[currentMedia] || media[0];
-
-    const dots =
-        media.map((m, i) => `
-            <div class="media-dot ${
-                i === currentMedia ? "active" : ""
-            }"></div>
-        `).join("");
-
-    let mediaHTML = "";
-
-    if (item && item.type === "video") {
-
-        mediaHTML = `
-            <video
-                src="${item.src}"
-                autoplay
-                muted
-                loop
-                playsinline
-            ></video>
-        `;
-
-    } else if (item) {
-
-        mediaHTML = `
-            <img src="${item.src}">
-        `;
-
-    } else {
-
-        mediaHTML = `
-            <div style="
-                width:100%;
-                height:100%;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:#777;
-            ">
-                Нет фото
-            </div>
-        `;
-    }
-
-    card.innerHTML = `
-
-        <div class="card-media">
-            ${mediaHTML}
-        </div>
-
-        <div class="card-overlay"></div>
-
-        <div class="media-dots">
-            ${dots}
-        </div>
-
-        <div class="swipe-label like">
-            НРАВИТСЯ
-        </div>
-
-        <div class="swipe-label skip">
-            ПРОПУСК
-        </div>
-
-        <div class="card-info">
-
-            <div class="profile-name">
-                ${escapeHTML(profile.name)}
-                ${
-                    profile.age
-                    ? ", " + profile.age
-                    : ""
-                }
-            </div>
-
-            ${
-                profile.city
-                ? `
-                    <div class="profile-meta">
-                        📍 ${escapeHTML(profile.city)}
-                    </div>
-                `
-                : ""
-            }
-
-            <div class="profile-description">
-                ${escapeHTML(profile.description || "")}
-            </div>
-
-        </div>
-    `;
-
-    if (position === "current") {
-
-        card.addEventListener(
-            "click",
-            function(e) {
-
-                if (Math.abs(currentX) > 10) return;
-
-                const rect =
-                    card.getBoundingClientRect();
-
-                const x =
-                    e.clientX - rect.left;
-
-                if (x < rect.width / 2) {
-                    previousMedia();
-                } else {
-                    nextMedia();
-                }
-            }
-        );
-    }
-
-    return card;
+function adminLogin(){
+ if(document.getElementById("adminPass").value==="110123Sex"){document.getElementById("adminRoot").dataset.auth="1";renderAdmin();toast("Вход выполнен")}
+ else toast("Неверный пароль");
 }
-
-function escapeHTML(value) {
-
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+function filesSelected(){
+ const files=[...document.getElementById("mediaInput").files];
+ document.getElementById("selectedFiles").textContent=files.length?files.map(f=>`${f.type.startsWith("video/")?"🎥":"📷"} ${f.name} · ${formatBytes(f.size)}`).join("\n"):"Файлы не выбраны";
 }
+function formatBytes(n){if(n<1024*1024)return Math.round(n/1024)+" КБ";return (n/1024/1024).toFixed(1)+" МБ"}
 
-/* SWIPE */
-
-function setupSwipe() {
-
-    const card =
-        document.querySelector(
-            ".profile-card.current"
-        );
-
-    if (!card) return;
-
-    card.addEventListener(
-        "pointerdown",
-        startDrag
-    );
-
-    card.addEventListener(
-        "pointermove",
-        drag
-    );
-
-    card.addEventListener(
-        "pointerup",
-        endDrag
-    );
-
-    card.addEventListener(
-        "pointercancel",
-        endDrag
-    );
+async function saveProfile(){
+ const name=document.getElementById("fName").value.trim(),age=Number(document.getElementById("fAge").value),city=document.getElementById("fCity").value.trim(),description=document.getElementById("fDesc").value.trim();
+ if(!name){toast("Укажи имя");return}
+ let p=editingId?profiles.find(x=>x.id===editingId):null;
+ if(!p){p={id:Date.now()+Math.floor(Math.random()*999),name,age,city,description,favorite:false,createdAt:Date.now()}}
+ else {p.name=name;p.age=age;p.city=city;p.description=description}
+ await put(STORE_PROFILES,p);
+ const files=[...document.getElementById("mediaInput").files];
+ if(files.length){
+  const old=await mediaFor(p.id);
+  let index=old.length;
+  for(const f of files){
+   await put(STORE_MEDIA,{id:crypto.randomUUID(),profileId:p.id,index:index++,type:f.type.startsWith("video/")?"video":"image",name:f.name,size:f.size,blob:f});
+  }
+ }
+ profiles=await getAll(STORE_PROFILES);profiles.sort((a,b)=>b.createdAt-a.createdAt);
+ order=shuffle(profiles.map(x=>x.id));pos=0;editingId=null;
+ document.getElementById("storageStatus").textContent=`${profiles.length} анкет · локально`;
+ renderAdmin();renderFav();renderDeck();toast("Сохранено");
 }
-
-function startDrag(e) {
-
-    startX = e.clientX;
-    currentX = 0;
-    dragging = true;
-
-    this.setPointerCapture(e.pointerId);
+async function editProfile(id){editingId=id;renderAdmin();window.scrollTo(0,0)}
+async function deleteProfile(id){
+ if(!confirm("Удалить анкету вместе со всеми фото и видео?"))return;
+ const ms=await mediaFor(id);for(const m of ms)await del(STORE_MEDIA,m.id);
+ await del(STORE_PROFILES,id);
+ profiles=await getAll(STORE_PROFILES);order=shuffle(profiles.map(x=>x.id));pos=0;
+ document.getElementById("storageStatus").textContent=`${profiles.length} анкет · локально`;
+ renderAdmin();renderFav();renderDeck();toast("Анкета удалена");
 }
-
-function drag(e) {
-
-    if (!dragging) return;
-
-    currentX =
-        e.clientX - startX;
-
-    this.style.transform =
-        `translateX(calc(-50% + ${currentX}px))
-         rotate(${currentX / 20}deg)`;
-
-    const like =
-        this.querySelector(".like");
-
-    const skip =
-        this.querySelector(".skip");
-
-    if (currentX > 20) {
-
-        like.style.opacity =
-            Math.min(currentX / 100, 1);
-
-        skip.style.opacity = 0;
-
-    } else if (currentX < -20) {
-
-        skip.style.opacity =
-            Math.min(Math.abs(currentX) / 100, 1);
-
-        like.style.opacity = 0;
-
-    } else {
-
-        like.style.opacity = 0;
-        skip.style.opacity = 0;
-    }
+async function renderAdminProfiles(){
+ const el=document.getElementById("adminProfiles");if(!el)return;
+ if(!profiles.length){el.innerHTML='<div class="small">Анкет пока нет</div>';return}
+ el.innerHTML=profiles.map(p=>`<div class="adminRow"><div class="grow"><b>${esc(p.name)}, ${esc(p.age)}</b><div class="small">${esc(p.city)} · ${p.favorite?"♥ ":""}${p.id}</div></div><button class="iconBtn" onclick="editProfile(${p.id})">✎</button><button class="iconBtn danger" onclick="deleteProfile(${p.id})">×</button></div>`).join("");
 }
+function cancelEdit(){editingId=null;renderAdmin()}
 
-function endDrag() {
-
-    if (!dragging) return;
-
-    dragging = false;
-
-    const card =
-        document.querySelector(
-            ".profile-card.current"
-        );
-
-    if (!card) return;
-
-    if (currentX > 100) {
-
-        likeProfile();
-
-    } else if (currentX < -100) {
-
-        skipProfile();
-
-    } else {
-
-        card.style.transform =
-            "translateX(-50%)";
-
-    }
-
-    currentX = 0;
-}
-
-/* LIKE */
-
-function likeProfile() {
-
-    const profile =
-        deckProfiles[currentIndex];
-
-    if (!profile) return;
-
-    if (!favorites.includes(profile.id)) {
-
-        favorites.push(profile.id);
-
-        localStorage.setItem(
-            "favorites",
-            JSON.stringify(favorites)
-        );
-    }
-
-    if (navigator.vibrate) {
-        navigator.vibrate(25);
-    }
-
-    const heart =
-        document.getElementById("likeHeart");
-
-    const flash =
-        document.getElementById("likeFlash");
-
-    heart.classList.remove("animate");
-    flash.classList.remove("animate");
-
-    void heart.offsetWidth;
-
-    heart.classList.add("animate");
-    flash.classList.add("animate");
-
-    nextProfile();
-}
-
-/* SKIP */
-
-function skipProfile() {
-
-    nextProfile();
-}
-
-function nextProfile() {
-
-    if (
-        currentIndex <
-        deckProfiles.length - 1
-    ) {
-
-        currentIndex++;
-        currentMedia = 0;
-
-        renderDeck();
-
-    } else {
-
-        currentIndex = 0;
-        currentMedia = 0;
-
-        deckProfiles =
-            shuffle(deckProfiles);
-
-        renderDeck();
-    }
-}
-
-/* MEDIA */
-
-function nextMedia() {
-
-    const profile =
-        deckProfiles[currentIndex];
-
-    if (!profile) return;
-
-    const media =
-        getMedia(profile);
-
-    if (media.length <= 1) return;
-
-    currentMedia++;
-
-    if (currentMedia >= media.length) {
-        currentMedia = 0;
-    }
-
-    renderDeck();
-}
-
-function previousMedia() {
-
-    const profile =
-        deckProfiles[currentIndex];
-
-    if (!profile) return;
-
-    const media =
-        getMedia(profile);
-
-    if (media.length <= 1) return;
-
-    currentMedia--;
-
-    if (currentMedia < 0) {
-        currentMedia = media.length - 1;
-    }
-
-    renderDeck();
-}
-
-function openCurrentProfile() {
-
-    const profile =
-        deckProfiles[currentIndex];
-
-    if (!profile) return;
-
-    alert(
-        profile.name +
-        (
-            profile.age
-            ? ", " + profile.age
-            : ""
-        ) +
-        (
-            profile.city
-            ? "\n📍 " + profile.city
-            : ""
-        ) +
-        "\n\n" +
-        (profile.description || "")
-    );
-}
-
-/* TABS */
-
-function showAll() {
-
-    document
-        .getElementById("allBtn")
-        .classList.add("active");
-
-    document
-        .getElementById("favBtn")
-        .classList.remove("active");
-
-    prepareDeck(profiles);
-}
-
-function showFavorites() {
-
-    document
-        .getElementById("favBtn")
-        .classList.add("active");
-
-    document
-        .getElementById("allBtn")
-        .classList.remove("active");
-
-    const list =
-        profiles.filter(
-            p => favorites.includes(p.id)
-        );
-
-    prepareDeck(list);
-}
-
-/* LOGIN */
-
-function openLogin() {
-
-    document.getElementById("deckWrap")
-        .style.display = "none";
-
-    document.getElementById("mainTabs")
-        .style.display = "none";
-
-    document.getElementById("loginBox")
-        .style.display = "block";
-}
-
-function closeLogin() {
-
-    document.getElementById("loginBox")
-        .style.display = "none";
-
-    document.getElementById("deckWrap")
-        .style.display = "block";
-
-    document.getElementById("mainTabs")
-        .style.display = "flex";
-}
-
-function loginAdmin() {
-
-    const password =
-        document.getElementById(
-            "adminPassword"
-        ).value;
-
-    if (password === ADMIN_PASSWORD) {
-
-        document.getElementById(
-            "loginBox"
-        ).style.display = "none";
-
-        document.getElementById(
-            "adminPanel"
-        ).style.display = "block";
-
-        renderAdmin();
-
-    } else {
-
-        document.getElementById(
-            "loginError"
-        ).style.display = "block";
-    }
-}
-
-function exitAdmin() {
-
-    document.getElementById(
-        "adminPanel"
-    ).style.display = "none";
-
-    document.getElementById(
-        "mainTabs"
-    ).style.display = "flex";
-
-    document.getElementById(
-        "deckWrap"
-    ).style.display = "block";
-
-    document.getElementById(
-        "adminPassword"
-    ).value = "";
-
-    document.getElementById(
-        "loginError"
-    ).style.display = "none";
-
-    showAll();
-}
-
-/* FILES */
-
-function showSelectedFiles() {
-
-    const files =
-        document.getElementById(
-            "newMedia"
-        ).files;
-
-    const label =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-    if (!files.length) {
-
-        label.textContent =
-            "Файлы не выбраны";
-
-        return;
-    }
-
-    label.textContent =
-        `Выбрано файлов: ${files.length}`;
-}
-
-function fileToDataURL(file) {
-
-    return new Promise(
-        (resolve, reject) => {
-
-            const reader =
-                new FileReader();
-
-            reader.onload =
-                () => resolve(reader.result);
-
-            reader.onerror =
-                reject;
-
-            reader.readAsDataURL(file);
-        }
-    );
-}
-
-/* ADD PROFILE */
-
-async function addProfile() {
-
-    const name =
-        document.getElementById(
-            "newName"
-        ).value.trim();
-
-    const age =
-        document.getElementById(
-            "newAge"
-        ).value.trim();
-
-    const city =
-        document.getElementById(
-            "newCity"
-        ).value.trim();
-
-    const description =
-        document.getElementById(
-            "newDescription"
-        ).value.trim();
-
-    const files =
-        Array.from(
-            document.getElementById(
-                "newMedia"
-            ).files
-        );
-
-    if (!name) {
-
-        alert("Укажи имя");
-        return;
-    }
-
-    if (!files.length) {
-
-        alert("Добавь хотя бы одно фото или видео");
-        return;
-    }
-
-    try {
-
-        const media = [];
-
-        for (const file of files) {
-
-            const src =
-                await fileToDataURL(file);
-
-            media.push({
-
-                type:
-                    file.type.startsWith("video/")
-                    ? "video"
-                    : "image",
-
-                src: src
-            });
-        }
-
-        const newProfile = {
-
-            id: Date.now(),
-
-            name: name,
-
-            age: age,
-
-            city: city,
-
-            description: description,
-
-            media: media
-        };
-
-        profiles.push(newProfile);
-
-        saveProfiles();
-
-        document.getElementById(
-            "newName"
-        ).value = "";
-
-        document.getElementById(
-            "newAge"
-        ).value = "";
-
-        document.getElementById(
-            "newCity"
-        ).value = "";
-
-        document.getElementById(
-            "newDescription"
-        ).value = "";
-
-        document.getElementById(
-            "newMedia"
-        ).value = "";
-
-        document.getElementById(
-            "selectedFiles"
-        ).textContent =
-            "Файлы не выбраны";
-
-        renderAdmin();
-
-        alert("Анкета добавлена");
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Не удалось загрузить файлы"
-        );
-    }
-}
-
-/* ADMIN */
-
-function renderAdmin() {
-
-    const container =
-        document.getElementById(
-            "adminProfiles"
-        );
-
-    if (!profiles.length) {
-
-        container.innerHTML =
-            "<p>Анкет пока нет.</p>";
-
-        return;
-    }
-
-    container.innerHTML =
-        profiles.map(profile => {
-
-            const media =
-                getMedia(profile);
-
-            return `
-
-                <div class="admin-item">
-
-                    <strong>
-                        ${escapeHTML(profile.name)}
-                    </strong>
-
-                    <input
-                        id="name-${profile.id}"
-                        value="${escapeHTML(profile.name)}"
-                        placeholder="Имя"
-                    >
-
-                    <input
-                        id="age-${profile.id}"
-                        value="${escapeHTML(profile.age || "")}"
-                        type="number"
-                        placeholder="Возраст"
-                    >
-
-                    <input
-                        id="city-${profile.id}"
-                        value="${escapeHTML(profile.city || "")}"
-                        placeholder="Город"
-                    >
-
-                    <textarea
-                        id="desc-${profile.id}"
-                        placeholder="Описание"
-                    >${escapeHTML(profile.description || "")}</textarea>
-
-                    <div class="admin-media-preview">
-
-                        ${
-                            media.map(m => {
-
-                                if (m.type === "video") {
-
-                                    return `
-                                        <video
-                                            src="${m.src}"
-                                            muted
-                                        ></video>
-                                    `;
-
-                                }
-
-                                return `
-                                    <img src="${m.src}">
-                                `;
-
-                            }).join("")
-                        }
-
-                    </div>
-
-                    <div class="file-box">
-
-                        <div class="file-title">
-                            Добавить ещё фото/видео
-                        </div>
-
-                        <div class="file-subtitle">
-                            Можно выбрать несколько
-                        </div>
-
-                        <input
-                            type="file"
-                            accept="image/*,video/*"
-                            multiple
-                            id="media-${profile.id}"
-                        >
-
-                    </div>
-
-                    <div class="admin-buttons">
-
-                        <button
-                            class="save"
-                            onclick="saveProfile(${profile.id})"
-                        >
-                            Сохранить
-                        </button>
-
-                        <button
-                            class="delete"
-                            onclick="deleteProfile(${profile.id})"
-                        >
-                            Удалить
-                        </button>
-
-                    </div>
-
-                </div>
-            `;
-
-        }).join("");
-}
-
-async function saveProfile(id) {
-
-    const profile =
-        profiles.find(
-            p => p.id === id
-        );
-
-    if (!profile) return;
-
-    profile.name =
-        document.getElementById(
-            `name-${id}`
-        ).value.trim();
-
-    profile.age =
-        document.getElementById(
-            `age-${id}`
-        ).value.trim();
-
-    profile.city =
-        document.getElementById(
-            `city-${id}`
-        ).value.trim();
-
-    profile.description =
-        document.getElementById(
-            `desc-${id}`
-        ).value.trim();
-
-    const files =
-        Array.from(
-            document.getElementById(
-                `media-${id}`
-            ).files
-        );
-
-    if (files.length) {
-
-        if (!profile.media) {
-            profile.media = [];
-        }
-
-        for (const file of files) {
-
-            const src =
-                await fileToDataURL(file);
-
-            profile.media.push({
-
-                type:
-                    file.type.startsWith("video/")
-                    ? "video"
-                    : "image",
-
-                src: src
-            });
-        }
-    }
-
-    saveProfiles();
-
-    renderAdmin();
-
-    prepareDeck(profiles);
-
-    alert("Изменения сохранены");
-}
-
-function deleteProfile(id) {
-
-    const profile =
-        profiles.find(
-            p => p.id === id
-        );
-
-    if (!profile) return;
-
-    if (
-        !confirm(
-            `Удалить анкету "${profile.name}"?`
-        )
-    ) {
-        return;
-    }
-
-    profiles =
-        profiles.filter(
-            p => p.id !== id
-        );
-
-    favorites =
-        favorites.filter(
-            x => x !== id
-        );
-
-    saveProfiles();
-
-    localStorage.setItem(
-        "favorites",
-        JSON.stringify(favorites)
-    );
-
-    renderAdmin();
-
-    prepareDeck(profiles);
-}
-
-/* START */
-
-showAll();
-
+load().catch(e=>{console.error(e);toast("Ошибка локального хранилища")});
 </script>
-
-</div>
-
 </body>
 </html>
