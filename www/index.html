@@ -334,6 +334,24 @@ async function renderAdminProfiles(){
  if(!profiles.length){el.innerHTML='<div class="small">Анкет пока нет</div>';return}
  el.innerHTML=profiles.map(p=>`<div class="adminRow"><div class="grow"><b>${esc(p.name)}, ${esc(p.age)}</b><div class="small">${esc(p.city)} · ${p.favorite?"♥ ":""}${p.id}</div></div><button class="iconBtn" onclick="editProfile(${p.id})">✎</button><button class="iconBtn danger" onclick="deleteProfile(${p.id})">×</button></div>`).join("");
 }
+async function renderEditMedia(){
+  const el=document.getElementById("editMediaList");
+  if(!el||!editingId)return;
+  const ms=await mediaFor(editingId);
+  if(!ms.length){el.innerHTML='<div class="small">Фото и видео пока не добавлены</div>';return}
+  el.innerHTML=ms.map(m=>`
+    <div class="adminRow">
+      ${m.type==="video"?`<video src="${mediaUrl(m)}" muted playsinline></video>`:`<img src="${mediaUrl(m)}">`}
+      <div class="grow"><b>${esc(m.name||"Медиа")}</b><div class="small">${m.type==="video"?"Видео":"Фото"} · ${formatBytes(m.size||0)}</div></div>
+      <button class="iconBtn danger" onclick="deleteMedia('${m.id}')">×</button>
+    </div>`).join("");
+}
+async function deleteMedia(id){
+  if(!confirm("Удалить этот файл?"))return;
+  await del(STORE_MEDIA,id);
+  await renderEditMedia();
+  toast("Медиа удалено");
+}
 function cancelEdit(){editingId=null;renderAdmin()}
 
 load().catch(e=>{console.error(e);toast("Ошибка локального хранилища")});
@@ -341,7 +359,7 @@ load().catch(e=>{console.error(e);toast("Ошибка локального хр�
 function toggleHeartMenu(){document.getElementById("heartMenu").classList.toggle("open")}
 function previousProfile(){if(!order.length)return;pos=(pos-1+order.length)%order.length;renderDeck()}
 function nextProfile(){if(!order.length)return;pos=(pos+1)%order.length;renderDeck()}
-async function likeCurrent(){if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);if(!p)return;p.favorite=!p.favorite;await put(STORE_PROFILES,p);document.getElementById("heartButton").classList.toggle("liked",p.favorite);vibrate(28);renderFav();toast(p.favorite?"Добавлено в избранное":"Убрано из избранного")}
+
 async function openGallery(type){document.getElementById("heartMenu").classList.remove("open");if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);const ms=(await mediaFor(p.id)).filter(x=>x.type===type);if(!ms.length){toast(type==="image"?"Фото нет":"Видео нет");return}const g=document.createElement("div");g.className="gallery";g.innerHTML='<div class="galleryHead"><h2 style="margin:0">'+(type==="image"?"Фото":"Видео")+' · '+ms.length+'</h2><button class="closeBtn" onclick="this.parentElement.parentElement.remove()">Закрыть</button></div><div class="galleryGrid" id="galleryGrid"></div>';document.body.appendChild(g);const grid=g.querySelector("#galleryGrid");ms.forEach(m=>{const u=URL.createObjectURL(m.blob);const d=document.createElement("div");d.className="galleryItem";d.innerHTML=m.type==="video"?`<video src="${u}" controls playsinline preload="metadata"></video>`:`<img src="${u}" loading="lazy">`;grid.appendChild(d)})}
 function openSocials(){document.getElementById("heartMenu").classList.remove("open");if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);const s=p.socials||{};const links=[["TikTok",s.tiktok,"♪"],["VK",s.vk,"VK"],["Instagram",s.instagram,"◎"],["Telegram",s.telegram,"✈"],["Telegram канал",s.tgchannel,"▣"]].filter(x=>x[1]);const el=document.createElement("div");el.className="socialPanel";el.innerHTML='<h2>Соц сети</h2>'+ (links.length?links.map(x=>`<a href="${esc(x[1])}" target="_blank" rel="noopener"><b>${x[2]}</b>${esc(x[0])}<span style="margin-left:auto">›</span></a>`).join(""): '<div class="bgNote">Соцсети не добавлены</div>')+'<button class="closeBtn" onclick="this.parentElement.remove()">Закрыть</button>';document.body.appendChild(el)}
 </script>
