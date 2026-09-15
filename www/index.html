@@ -2,133 +2,411 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PrivateCatalog</title>
 
 <style>
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #050507;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
+    overflow-x: hidden;
 }
 
 body {
-    margin: 0;
-    background: #0b0b0f;
-    color: white;
-    font-family: Arial, sans-serif;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-header {
-    padding: 20px;
-    text-align: center;
-    font-size: 26px;
-    font-weight: bold;
-}
-
-.tabs {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px 20px 20px;
-    flex-wrap: wrap;
+button, input, textarea {
+    font: inherit;
 }
 
 button {
     border: 0;
-    border-radius: 12px;
-    padding: 12px 18px;
-    background: #1b1b23;
     color: white;
-    font-size: 15px;
     cursor: pointer;
 }
 
-button.active {
-    background: white;
-    color: black;
+.app {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.055), transparent 35%),
+        radial-gradient(circle at 0% 80%, rgba(180,0,0,.08), transparent 35%),
+        #050507;
 }
 
-#catalog {
-    padding: 10px 15px 40px;
+header {
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
 }
 
-.card {
-    background: #15151c;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 18px;
-}
-
-.card img {
-    width: 100%;
-    height: 360px;
-    object-fit: cover;
-}
-
-.info {
-    padding: 16px;
-}
-
-.name {
+.logo {
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 750;
+    letter-spacing: -.5px;
 }
 
-.description {
-    color: #aaa;
-    margin-top: 8px;
+.header-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
 }
 
-.actions {
+.tabs {
     display: flex;
     gap: 8px;
-    margin-top: 15px;
+    padding: 0 18px 14px;
 }
 
-.actions button {
+.tab {
+    padding: 10px 17px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.055);
+    color: #8f8f96;
+    border: 1px solid rgba(255,255,255,.06);
+    font-size: 14px;
+}
+
+.tab.active {
+    background: #fff;
+    color: #09090b;
+}
+
+/* DECK */
+
+.deck-wrap {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 175px);
+    min-height: 570px;
+    overflow: hidden;
+}
+
+.deck {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-card {
+    position: absolute;
+    top: 8px;
+    width: min(82vw, 390px);
+    height: calc(100% - 16px);
+    max-height: 690px;
+    border-radius: 30px;
+    overflow: hidden;
+    background: #111114;
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 25px 70px rgba(0,0,0,.55);
+    transition: transform .35s ease, opacity .35s ease;
+    user-select: none;
+    touch-action: pan-y;
+}
+
+.profile-card.current {
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.profile-card.prev {
+    left: -52%;
+    transform: scale(.94);
+    opacity: .55;
+    z-index: 2;
+}
+
+.profile-card.next {
+    left: 52%;
+    transform: scale(.94);
+    opacity: .55;
+    z-index: 2;
+}
+
+.card-media {
+    position: absolute;
+    inset: 0;
+    background: #151519;
+}
+
+.card-media img,
+.card-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(to bottom, rgba(0,0,0,.15), transparent 30%),
+        linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
+    pointer-events: none;
+}
+
+.media-dots {
+    position: absolute;
+    top: 16px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    gap: 5px;
+    z-index: 5;
+}
+
+.media-dot {
     flex: 1;
+    height: 3px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.3);
 }
 
-.favorite {
-    background: #292933;
+.media-dot.active {
+    background: white;
 }
+
+.card-info {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 5;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: 750;
+    letter-spacing: -.7px;
+}
+
+.profile-meta {
+    margin-top: 5px;
+    color: rgba(255,255,255,.78);
+    font-size: 14px;
+}
+
+.profile-description {
+    margin-top: 10px;
+    color: rgba(255,255,255,.7);
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 320px;
+}
+
+/* swipe hint */
+
+.swipe-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 23px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.swipe-label.like {
+    border-color: #ff4040;
+    color: #ff4040;
+}
+
+.swipe-label.skip {
+    border-color: #aaa;
+    color: #aaa;
+    transform: translate(-50%, -50%) rotate(12deg);
+}
+
+/* ACTIONS */
+
+.actions {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    pointer-events: none;
+}
+
+.action {
+    pointer-events: auto;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(20,20,23,.92);
+    border: 1px solid rgba(255,255,255,.09);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    font-size: 23px;
+}
+
+.action.main {
+    width: 64px;
+    height: 64px;
+    background: #fff;
+    color: #08080a;
+    font-size: 27px;
+}
+
+.action.like.active {
+    background: #ff3838;
+    color: white;
+}
+
+/* EMPTY */
 
 .empty {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #77777e;
     text-align: center;
-    color: #888;
-    padding: 50px 20px;
+    padding: 40px;
 }
 
+/* ADMIN / LOGIN */
+
+#loginBox,
 .admin-panel {
     display: none;
-    padding: 20px 15px 50px;
+    padding: 20px;
 }
 
-.admin-panel h2 {
-    margin-top: 0;
+.panel-card {
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    padding: 18px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(20px);
 }
 
-.admin-card {
-    background: #15151c;
-    padding: 16px;
-    border-radius: 18px;
-    margin-bottom: 15px;
+.panel-title {
+    font-size: 24px;
+    font-weight: 750;
+    margin: 5px 0 20px;
 }
 
 input,
 textarea {
     width: 100%;
-    background: #1b1b23;
+    background: rgba(255,255,255,.055);
     color: white;
-    border: 1px solid #33333d;
-    border-radius: 12px;
-    padding: 12px;
-    margin: 6px 0 12px;
-    font-size: 15px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 15px;
+    padding: 13px;
+    margin: 5px 0 11px;
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color: rgba(255,255,255,.3);
 }
 
 textarea {
     min-height: 90px;
     resize: vertical;
+}
+
+.file-box {
+    position: relative;
+    border: 1px dashed rgba(255,255,255,.2);
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    margin: 8px 0 13px;
+    background: rgba(255,255,255,.035);
+}
+
+.file-box input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.file-title {
+    font-weight: 650;
+}
+
+.file-subtitle {
+    color: #85858c;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    background: white;
+    color: #050507;
+    font-weight: 700;
+}
+
+.secondary {
+    width: 100%;
+    padding: 13px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.07);
+}
+
+.admin-media-preview {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.admin-media-preview img,
+.admin-media-preview video {
+    width: 70px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.admin-item {
+    padding: 15px;
+    background: rgba(255,255,255,.04);
+    border-radius: 18px;
+    margin-bottom: 10px;
+}
+
+.admin-item strong {
+    font-size: 17px;
 }
 
 .admin-buttons {
@@ -138,86 +416,184 @@ textarea {
 
 .admin-buttons button {
     flex: 1;
+    padding: 11px;
+    border-radius: 13px;
+}
+
+.save {
+    background: #fff;
+    color: #050507;
 }
 
 .delete {
-    background: #512020;
+    background: #401919;
+    color: #ff8d8d;
 }
 
-.edit {
-    background: #252540;
-}
-
-#loginBox {
-    display: none;
-    padding: 30px 20px;
-    text-align: center;
-}
-
-#loginBox input {
-    max-width: 350px;
+.back {
+    margin-bottom: 15px;
+    background: rgba(255,255,255,.07);
+    padding: 11px 15px;
+    border-radius: 14px;
 }
 
 .login-error {
-    color: #ff6b6b;
-    margin-top: 10px;
     display: none;
+    color: #ff6868;
+    margin: 10px 0;
+    font-size: 14px;
 }
 
-.back-button {
-    margin-bottom: 15px;
+.selected-files {
+    color: #999;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+/* LIKE ANIMATION */
+
+.like-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background: rgba(255,35,35,.08);
+    opacity: 0;
+}
+
+.like-heart {
+    position: fixed;
+    z-index: 101;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(.4);
+    font-size: 100px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.like-heart.animate {
+    animation: heartPop .65s ease forwards;
+}
+
+.like-flash.animate {
+    animation: flash .45s ease;
+}
+
+@keyframes heartPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%,-50%) scale(.4);
+    }
+    35% {
+        opacity: 1;
+        transform: translate(-50%,-50%) scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%,-50%) scale(1.4);
+    }
+}
+
+@keyframes flash {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (min-width: 700px) {
+    .profile-card {
+        width: 390px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header>PrivateCatalog</header>
+<div class="app">
+
+<header>
+    <div class="logo">PrivateCatalog</div>
+    <button class="header-button" onclick="openLogin()">⚙</button>
+</header>
 
 <div class="tabs" id="mainTabs">
-    <button id="allBtn" class="active" onclick="showAll()">Анкеты</button>
-    <button id="favBtn" onclick="showFavorites()">Избранное</button>
-    <button onclick="openLogin()">Админ</button>
+    <button class="tab active" id="allBtn" onclick="showAll()">Анкеты</button>
+    <button class="tab" id="favBtn" onclick="showFavorites()">Избранное</button>
 </div>
 
-<div id="catalog"></div>
+<div class="deck-wrap" id="deckWrap">
+    <div class="deck" id="deck"></div>
+
+    <div class="actions">
+        <button class="action" onclick="skipProfile()">×</button>
+        <button class="action main" onclick="likeProfile()">♡</button>
+        <button class="action" onclick="openCurrentProfile()">i</button>
+    </div>
+</div>
+
+<div class="like-flash" id="likeFlash"></div>
+<div class="like-heart" id="likeHeart">♥</div>
+
+<!-- LOGIN -->
 
 <div id="loginBox">
-    <h2>Вход администратора</h2>
 
-    <input
-        type="password"
-        id="adminPassword"
-        placeholder="Введите пароль"
-    >
+    <div class="panel-card">
+        <div class="panel-title">Администратор</div>
 
-    <br>
+        <input
+            type="password"
+            id="adminPassword"
+            placeholder="Пароль"
+        >
 
-    <button onclick="loginAdmin()">Войти</button>
+        <button class="primary" onclick="loginAdmin()">
+            Войти
+        </button>
 
-    <div id="loginError" class="login-error">
-        Неверный пароль
+        <div class="login-error" id="loginError">
+            Неверный пароль
+        </div>
+
+        <br>
+
+        <button class="secondary" onclick="closeLogin()">
+            Назад
+        </button>
     </div>
 
-    <br><br>
-
-    <button onclick="closeLogin()">Назад</button>
 </div>
+
+<!-- ADMIN -->
 
 <div class="admin-panel" id="adminPanel">
 
-    <button class="back-button" onclick="exitAdmin()">
-        ← Вернуться к анкетам
+    <button class="back" onclick="exitAdmin()">
+        ← Вернуться
     </button>
 
-    <h2>Админ-панель</h2>
+    <div class="panel-title">Админ-панель</div>
 
-    <div class="admin-card">
-        <h3>Добавить анкету</h3>
+    <div class="panel-card">
+
+        <h3>Новая анкета</h3>
 
         <input
             id="newName"
             placeholder="Имя"
+        >
+
+        <input
+            id="newAge"
+            type="number"
+            placeholder="Возраст"
+        >
+
+        <input
+            id="newCity"
+            placeholder="Город"
         >
 
         <textarea
@@ -225,17 +601,38 @@ textarea {
             placeholder="Описание"
         ></textarea>
 
-        <input
-            id="newImage"
-            placeholder="Ссылка на изображение"
-        >
+        <div class="file-box">
+            <div class="file-title">
+                📸 Фото и видео
+            </div>
 
-        <button onclick="addProfile()">
+            <div class="file-subtitle">
+                Выбрать прямо с телефона
+            </div>
+
+            <input
+                id="newMedia"
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                onchange="showSelectedFiles()"
+            >
+        </div>
+
+        <div
+            class="selected-files"
+            id="selectedFiles"
+        >
+            Файлы не выбраны
+        </div>
+
+        <button class="primary" onclick="addProfile()">
             + Добавить анкету
         </button>
+
     </div>
 
-    <h3>Существующие анкеты</h3>
+    <h3>Анкеты</h3>
 
     <div id="adminProfiles"></div>
 
@@ -249,20 +646,41 @@ const defaultProfiles = [
     {
         id: 1,
         name: "Александра",
+        age: 21,
+        city: "Иркутск",
         description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900"
+        media: [
+            {
+                type: "image",
+                src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900"
+            }
+        ]
     },
     {
         id: 2,
         name: "Мария",
+        age: 22,
+        city: "Иркутск",
         description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900"
+        media: [
+            {
+                type: "image",
+                src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900"
+            }
+        ]
     },
     {
         id: 3,
         name: "Елена",
+        age: 20,
+        city: "Иркутск",
         description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900"
+        media: [
+            {
+                type: "image",
+                src: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900"
+            }
+        ]
     }
 ];
 
@@ -274,6 +692,14 @@ let favorites = JSON.parse(
     localStorage.getItem("favorites") || "[]"
 );
 
+let deckProfiles = [];
+let currentIndex = 0;
+let currentMedia = 0;
+
+let startX = 0;
+let currentX = 0;
+let dragging = false;
+
 function saveProfiles() {
     localStorage.setItem(
         "profiles",
@@ -281,143 +707,517 @@ function saveProfiles() {
     );
 }
 
-function randomProfiles() {
-    return [...profiles].sort(
+function getMedia(profile) {
+
+    if (profile.media && profile.media.length) {
+        return profile.media;
+    }
+
+    if (profile.image) {
+        return [
+            {
+                type: "image",
+                src: profile.image
+            }
+        ];
+    }
+
+    return [];
+}
+
+function shuffle(array) {
+
+    return [...array].sort(
         () => Math.random() - 0.5
     );
 }
 
-function render(list) {
+function prepareDeck(list) {
 
-    const catalog =
-        document.getElementById("catalog");
+    deckProfiles = shuffle(list);
+    currentIndex = 0;
+    currentMedia = 0;
 
-    if (!list.length) {
+    renderDeck();
+}
 
-        catalog.innerHTML =
-            '<div class="empty">В избранном пока ничего нет</div>';
+function renderDeck() {
+
+    const deck = document.getElementById("deck");
+
+    if (!deckProfiles.length) {
+
+        deck.innerHTML = `
+            <div class="empty">
+                <div>
+                    <div style="font-size:40px;margin-bottom:15px;">♡</div>
+                    Здесь пока ничего нет
+                </div>
+            </div>
+        `;
 
         return;
     }
 
-    catalog.innerHTML = list.map(profile => `
+    const prev =
+        deckProfiles[currentIndex - 1] || null;
 
-        <div class="card">
+    const current =
+        deckProfiles[currentIndex] || null;
 
-            <img
-                src="${profile.image}"
-                onerror="this.style.display='none'"
-            >
+    const next =
+        deckProfiles[currentIndex + 1] || null;
 
-            <div class="info">
+    deck.innerHTML = "";
 
-                <div class="name">
-                    ${profile.name}
-                </div>
+    if (prev) {
+        deck.appendChild(
+            createCard(prev, "prev")
+        );
+    }
 
-                <div class="description">
-                    ${profile.description}
-                </div>
+    if (current) {
+        deck.appendChild(
+            createCard(current, "current")
+        );
+    }
 
-                <div class="actions">
+    if (next) {
+        deck.appendChild(
+            createCard(next, "next")
+        );
+    }
 
-                    <button
-                        onclick="openProfile(${profile.id})"
-                    >
-                        Открыть
-                    </button>
+    setupSwipe();
+}
 
-                    <button
-                        class="favorite"
-                        onclick="toggleFavorite(${profile.id})"
-                    >
-                        ${
-                            favorites.includes(profile.id)
-                            ? "★ В избранном"
-                            : "☆ В избранное"
-                        }
-                    </button>
+function createCard(profile, position) {
 
-                </div>
+    const card =
+        document.createElement("div");
 
+    card.className =
+        "profile-card " + position;
+
+    const media = getMedia(profile);
+
+    const item =
+        media[currentMedia] || media[0];
+
+    const dots =
+        media.map((m, i) => `
+            <div class="media-dot ${
+                i === currentMedia ? "active" : ""
+            }"></div>
+        `).join("");
+
+    let mediaHTML = "";
+
+    if (item && item.type === "video") {
+
+        mediaHTML = `
+            <video
+                src="${item.src}"
+                autoplay
+                muted
+                loop
+                playsinline
+            ></video>
+        `;
+
+    } else if (item) {
+
+        mediaHTML = `
+            <img src="${item.src}">
+        `;
+
+    } else {
+
+        mediaHTML = `
+            <div style="
+                width:100%;
+                height:100%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:#777;
+            ">
+                Нет фото
+            </div>
+        `;
+    }
+
+    card.innerHTML = `
+
+        <div class="card-media">
+            ${mediaHTML}
+        </div>
+
+        <div class="card-overlay"></div>
+
+        <div class="media-dots">
+            ${dots}
+        </div>
+
+        <div class="swipe-label like">
+            НРАВИТСЯ
+        </div>
+
+        <div class="swipe-label skip">
+            ПРОПУСК
+        </div>
+
+        <div class="card-info">
+
+            <div class="profile-name">
+                ${escapeHTML(profile.name)}
+                ${
+                    profile.age
+                    ? ", " + profile.age
+                    : ""
+                }
+            </div>
+
+            ${
+                profile.city
+                ? `
+                    <div class="profile-meta">
+                        📍 ${escapeHTML(profile.city)}
+                    </div>
+                `
+                : ""
+            }
+
+            <div class="profile-description">
+                ${escapeHTML(profile.description || "")}
             </div>
 
         </div>
+    `;
 
-    `).join("");
+    if (position === "current") {
+
+        card.addEventListener(
+            "click",
+            function(e) {
+
+                if (Math.abs(currentX) > 10) return;
+
+                const rect =
+                    card.getBoundingClientRect();
+
+                const x =
+                    e.clientX - rect.left;
+
+                if (x < rect.width / 2) {
+                    previousMedia();
+                } else {
+                    nextMedia();
+                }
+            }
+        );
+    }
+
+    return card;
 }
+
+function escapeHTML(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* SWIPE */
+
+function setupSwipe() {
+
+    const card =
+        document.querySelector(
+            ".profile-card.current"
+        );
+
+    if (!card) return;
+
+    card.addEventListener(
+        "pointerdown",
+        startDrag
+    );
+
+    card.addEventListener(
+        "pointermove",
+        drag
+    );
+
+    card.addEventListener(
+        "pointerup",
+        endDrag
+    );
+
+    card.addEventListener(
+        "pointercancel",
+        endDrag
+    );
+}
+
+function startDrag(e) {
+
+    startX = e.clientX;
+    currentX = 0;
+    dragging = true;
+
+    this.setPointerCapture(e.pointerId);
+}
+
+function drag(e) {
+
+    if (!dragging) return;
+
+    currentX =
+        e.clientX - startX;
+
+    this.style.transform =
+        `translateX(calc(-50% + ${currentX}px))
+         rotate(${currentX / 20}deg)`;
+
+    const like =
+        this.querySelector(".like");
+
+    const skip =
+        this.querySelector(".skip");
+
+    if (currentX > 20) {
+
+        like.style.opacity =
+            Math.min(currentX / 100, 1);
+
+        skip.style.opacity = 0;
+
+    } else if (currentX < -20) {
+
+        skip.style.opacity =
+            Math.min(Math.abs(currentX) / 100, 1);
+
+        like.style.opacity = 0;
+
+    } else {
+
+        like.style.opacity = 0;
+        skip.style.opacity = 0;
+    }
+}
+
+function endDrag() {
+
+    if (!dragging) return;
+
+    dragging = false;
+
+    const card =
+        document.querySelector(
+            ".profile-card.current"
+        );
+
+    if (!card) return;
+
+    if (currentX > 100) {
+
+        likeProfile();
+
+    } else if (currentX < -100) {
+
+        skipProfile();
+
+    } else {
+
+        card.style.transform =
+            "translateX(-50%)";
+
+    }
+
+    currentX = 0;
+}
+
+/* LIKE */
+
+function likeProfile() {
+
+    const profile =
+        deckProfiles[currentIndex];
+
+    if (!profile) return;
+
+    if (!favorites.includes(profile.id)) {
+
+        favorites.push(profile.id);
+
+        localStorage.setItem(
+            "favorites",
+            JSON.stringify(favorites)
+        );
+    }
+
+    if (navigator.vibrate) {
+        navigator.vibrate(25);
+    }
+
+    const heart =
+        document.getElementById("likeHeart");
+
+    const flash =
+        document.getElementById("likeFlash");
+
+    heart.classList.remove("animate");
+    flash.classList.remove("animate");
+
+    void heart.offsetWidth;
+
+    heart.classList.add("animate");
+    flash.classList.add("animate");
+
+    nextProfile();
+}
+
+/* SKIP */
+
+function skipProfile() {
+
+    nextProfile();
+}
+
+function nextProfile() {
+
+    if (
+        currentIndex <
+        deckProfiles.length - 1
+    ) {
+
+        currentIndex++;
+        currentMedia = 0;
+
+        renderDeck();
+
+    } else {
+
+        currentIndex = 0;
+        currentMedia = 0;
+
+        deckProfiles =
+            shuffle(deckProfiles);
+
+        renderDeck();
+    }
+}
+
+/* MEDIA */
+
+function nextMedia() {
+
+    const profile =
+        deckProfiles[currentIndex];
+
+    if (!profile) return;
+
+    const media =
+        getMedia(profile);
+
+    if (media.length <= 1) return;
+
+    currentMedia++;
+
+    if (currentMedia >= media.length) {
+        currentMedia = 0;
+    }
+
+    renderDeck();
+}
+
+function previousMedia() {
+
+    const profile =
+        deckProfiles[currentIndex];
+
+    if (!profile) return;
+
+    const media =
+        getMedia(profile);
+
+    if (media.length <= 1) return;
+
+    currentMedia--;
+
+    if (currentMedia < 0) {
+        currentMedia = media.length - 1;
+    }
+
+    renderDeck();
+}
+
+function openCurrentProfile() {
+
+    const profile =
+        deckProfiles[currentIndex];
+
+    if (!profile) return;
+
+    alert(
+        profile.name +
+        (
+            profile.age
+            ? ", " + profile.age
+            : ""
+        ) +
+        (
+            profile.city
+            ? "\n📍 " + profile.city
+            : ""
+        ) +
+        "\n\n" +
+        (profile.description || "")
+    );
+}
+
+/* TABS */
 
 function showAll() {
 
-    document.getElementById("allBtn")
+    document
+        .getElementById("allBtn")
         .classList.add("active");
 
-    document.getElementById("favBtn")
+    document
+        .getElementById("favBtn")
         .classList.remove("active");
 
-    render(randomProfiles());
+    prepareDeck(profiles);
 }
 
 function showFavorites() {
 
-    document.getElementById("favBtn")
+    document
+        .getElementById("favBtn")
         .classList.add("active");
 
-    document.getElementById("allBtn")
+    document
+        .getElementById("allBtn")
         .classList.remove("active");
 
-    render(
+    const list =
         profiles.filter(
             p => favorites.includes(p.id)
-        )
-    );
-}
-
-function toggleFavorite(id) {
-
-    if (favorites.includes(id)) {
-
-        favorites =
-            favorites.filter(
-                x => x !== id
-            );
-
-    } else {
-
-        favorites.push(id);
-
-    }
-
-    localStorage.setItem(
-        "favorites",
-        JSON.stringify(favorites)
-    );
-
-    showAll();
-}
-
-function openProfile(id) {
-
-    const profile =
-        profiles.find(
-            p => p.id === id
         );
 
-    alert(
-        profile.name +
-        "\n\n" +
-        profile.description
-    );
+    prepareDeck(list);
 }
 
-
-/* =========================
-   АДМИНКА
-========================= */
+/* LOGIN */
 
 function openLogin() {
 
-    document.getElementById("catalog")
+    document.getElementById("deckWrap")
         .style.display = "none";
 
     document.getElementById("mainTabs")
@@ -432,7 +1232,7 @@ function closeLogin() {
     document.getElementById("loginBox")
         .style.display = "none";
 
-    document.getElementById("catalog")
+    document.getElementById("deckWrap")
         .style.display = "block";
 
     document.getElementById("mainTabs")
@@ -463,7 +1263,6 @@ function loginAdmin() {
         document.getElementById(
             "loginError"
         ).style.display = "block";
-
     }
 }
 
@@ -478,7 +1277,7 @@ function exitAdmin() {
     ).style.display = "flex";
 
     document.getElementById(
-        "catalog"
+        "deckWrap"
     ).style.display = "block";
 
     document.getElementById(
@@ -492,11 +1291,68 @@ function exitAdmin() {
     showAll();
 }
 
-function addProfile() {
+/* FILES */
+
+function showSelectedFiles() {
+
+    const files =
+        document.getElementById(
+            "newMedia"
+        ).files;
+
+    const label =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+    if (!files.length) {
+
+        label.textContent =
+            "Файлы не выбраны";
+
+        return;
+    }
+
+    label.textContent =
+        `Выбрано файлов: ${files.length}`;
+}
+
+function fileToDataURL(file) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const reader =
+                new FileReader();
+
+            reader.onload =
+                () => resolve(reader.result);
+
+            reader.onerror =
+                reject;
+
+            reader.readAsDataURL(file);
+        }
+    );
+}
+
+/* ADD PROFILE */
+
+async function addProfile() {
 
     const name =
         document.getElementById(
             "newName"
+        ).value.trim();
+
+    const age =
+        document.getElementById(
+            "newAge"
+        ).value.trim();
+
+    const city =
+        document.getElementById(
+            "newCity"
         ).value.trim();
 
     const description =
@@ -504,51 +1360,104 @@ function addProfile() {
             "newDescription"
         ).value.trim();
 
-    const image =
-        document.getElementById(
-            "newImage"
-        ).value.trim();
+    const files =
+        Array.from(
+            document.getElementById(
+                "newMedia"
+            ).files
+        );
 
-    if (!name || !description || !image) {
+    if (!name) {
 
-        alert("Заполни все поля");
-
+        alert("Укажи имя");
         return;
     }
 
-    const newProfile = {
+    if (!files.length) {
 
-        id: Date.now(),
+        alert("Добавь хотя бы одно фото или видео");
+        return;
+    }
 
-        name: name,
+    try {
 
-        description: description,
+        const media = [];
 
-        image: image
+        for (const file of files) {
 
-    };
+            const src =
+                await fileToDataURL(file);
 
-    profiles.push(newProfile);
+            media.push({
 
-    saveProfiles();
+                type:
+                    file.type.startsWith("video/")
+                    ? "video"
+                    : "image",
 
-    document.getElementById(
-        "newName"
-    ).value = "";
+                src: src
+            });
+        }
 
-    document.getElementById(
-        "newDescription"
-    ).value = "";
+        const newProfile = {
 
-    document.getElementById(
-        "newImage"
-    ).value = "";
+            id: Date.now(),
 
-    renderAdmin();
+            name: name,
 
-    alert("Анкета добавлена");
+            age: age,
 
+            city: city,
+
+            description: description,
+
+            media: media
+        };
+
+        profiles.push(newProfile);
+
+        saveProfiles();
+
+        document.getElementById(
+            "newName"
+        ).value = "";
+
+        document.getElementById(
+            "newAge"
+        ).value = "";
+
+        document.getElementById(
+            "newCity"
+        ).value = "";
+
+        document.getElementById(
+            "newDescription"
+        ).value = "";
+
+        document.getElementById(
+            "newMedia"
+        ).value = "";
+
+        document.getElementById(
+            "selectedFiles"
+        ).textContent =
+            "Файлы не выбраны";
+
+        renderAdmin();
+
+        alert("Анкета добавлена");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Не удалось загрузить файлы"
+        );
+    }
 }
+
+/* ADMIN */
 
 function renderAdmin() {
 
@@ -563,85 +1472,180 @@ function renderAdmin() {
             "<p>Анкет пока нет.</p>";
 
         return;
-
     }
 
     container.innerHTML =
-        profiles.map(profile => `
+        profiles.map(profile => {
 
-        <div class="admin-card">
+            const media =
+                getMedia(profile);
 
-            <strong>
-                ${profile.name}
-            </strong>
+            return `
 
-            <br><br>
+                <div class="admin-item">
 
-            <input
-                id="name-${profile.id}"
-                value="${profile.name}"
-            >
+                    <strong>
+                        ${escapeHTML(profile.name)}
+                    </strong>
 
-            <textarea
-                id="desc-${profile.id}"
-            >${profile.description}</textarea>
+                    <input
+                        id="name-${profile.id}"
+                        value="${escapeHTML(profile.name)}"
+                        placeholder="Имя"
+                    >
 
-            <input
-                id="image-${profile.id}"
-                value="${profile.image}"
-            >
+                    <input
+                        id="age-${profile.id}"
+                        value="${escapeHTML(profile.age || "")}"
+                        type="number"
+                        placeholder="Возраст"
+                    >
 
-            <div class="admin-buttons">
+                    <input
+                        id="city-${profile.id}"
+                        value="${escapeHTML(profile.city || "")}"
+                        placeholder="Город"
+                    >
 
-                <button
-                    class="edit"
-                    onclick="saveProfile(${profile.id})"
-                >
-                    Сохранить
-                </button>
+                    <textarea
+                        id="desc-${profile.id}"
+                        placeholder="Описание"
+                    >${escapeHTML(profile.description || "")}</textarea>
 
-                <button
-                    class="delete"
-                    onclick="deleteProfile(${profile.id})"
-                >
-                    Удалить
-                </button>
+                    <div class="admin-media-preview">
 
-            </div>
+                        ${
+                            media.map(m => {
 
-        </div>
+                                if (m.type === "video") {
 
-    `).join("");
+                                    return `
+                                        <video
+                                            src="${m.src}"
+                                            muted
+                                        ></video>
+                                    `;
+
+                                }
+
+                                return `
+                                    <img src="${m.src}">
+                                `;
+
+                            }).join("")
+                        }
+
+                    </div>
+
+                    <div class="file-box">
+
+                        <div class="file-title">
+                            Добавить ещё фото/видео
+                        </div>
+
+                        <div class="file-subtitle">
+                            Можно выбрать несколько
+                        </div>
+
+                        <input
+                            type="file"
+                            accept="image/*,video/*"
+                            multiple
+                            id="media-${profile.id}"
+                        >
+
+                    </div>
+
+                    <div class="admin-buttons">
+
+                        <button
+                            class="save"
+                            onclick="saveProfile(${profile.id})"
+                        >
+                            Сохранить
+                        </button>
+
+                        <button
+                            class="delete"
+                            onclick="deleteProfile(${profile.id})"
+                        >
+                            Удалить
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
 }
 
-function saveProfile(id) {
+async function saveProfile(id) {
 
     const profile =
         profiles.find(
             p => p.id === id
         );
 
+    if (!profile) return;
+
     profile.name =
         document.getElementById(
             `name-${id}`
-        ).value;
+        ).value.trim();
+
+    profile.age =
+        document.getElementById(
+            `age-${id}`
+        ).value.trim();
+
+    profile.city =
+        document.getElementById(
+            `city-${id}`
+        ).value.trim();
 
     profile.description =
         document.getElementById(
             `desc-${id}`
-        ).value;
+        ).value.trim();
 
-    profile.image =
-        document.getElementById(
-            `image-${id}`
-        ).value;
+    const files =
+        Array.from(
+            document.getElementById(
+                `media-${id}`
+            ).files
+        );
+
+    if (files.length) {
+
+        if (!profile.media) {
+            profile.media = [];
+        }
+
+        for (const file of files) {
+
+            const src =
+                await fileToDataURL(file);
+
+            profile.media.push({
+
+                type:
+                    file.type.startsWith("video/")
+                    ? "video"
+                    : "image",
+
+                src: src
+            });
+        }
+    }
 
     saveProfiles();
 
     renderAdmin();
 
-    alert("Изменения сохранены");
+    prepareDeck(profiles);
 
+    alert("Изменения сохранены");
 }
 
 function deleteProfile(id) {
@@ -651,9 +1655,13 @@ function deleteProfile(id) {
             p => p.id === id
         );
 
-    if (!confirm(
-        `Удалить анкету "${profile.name}"?`
-    )) {
+    if (!profile) return;
+
+    if (
+        !confirm(
+            `Удалить анкету "${profile.name}"?`
+        )
+    ) {
         return;
     }
 
@@ -676,14 +1684,16 @@ function deleteProfile(id) {
 
     renderAdmin();
 
+    prepareDeck(profiles);
 }
 
-
-/* Запуск */
+/* START */
 
 showAll();
 
 </script>
+
+</div>
 
 </body>
 </html>
