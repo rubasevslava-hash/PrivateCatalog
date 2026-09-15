@@ -31,15 +31,15 @@ jobs:
       - name: Sync Capacitor
         run: ./node_modules/.bin/cap sync ios
 
-      - name: Install CocoaPods
+      - name: Find generated Xcode project
         run: |
-          cd ios/App
-          pod install
+          echo "=== iOS files ==="
+          find ios -maxdepth 4 -type f | sort
 
       - name: Build iOS
         run: |
           xcodebuild \
-            -workspace ios/App/App.xcworkspace \
+            -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
@@ -52,3 +52,6 @@ jobs:
         with:
           name: PrivateCatalog-iOS
           path: build/App.xcarchive
+
+
+
