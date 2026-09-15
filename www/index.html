@@ -79,7 +79,7 @@ textarea{min-height:90px;resize:vertical}
 .version{font-size:11px;color:#555;text-align:center;padding:4px}
 
 .heartMenu{position:absolute;left:50%;bottom:82px;transform:translateX(-50%) scale(.96);width:min(330px,88vw);padding:8px;background:rgba(22,23,26,.78);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(28px);border-radius:25px;opacity:0;pointer-events:none;transition:.18s;z-index:50}.heartMenu.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}.heartMenu button{width:100%;padding:15px;background:none;color:#fff;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.1);font-size:16px;text-align:left}.heartMenu button:last-child{border:0}.heartMenu button b{margin-left:auto}.action.like{color:#ff2638;text-shadow:0 0 15px rgba(255,38,56,.55)}.action.liked{background:rgba(255,38,56,.18);border-color:rgba(255,38,56,.6)}.gallery{position:fixed;inset:0;z-index:100;background:rgba(3,3,4,.88);backdrop-filter:blur(28px);padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 18px);overflow:auto}.galleryHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.galleryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.galleryItem{aspect-ratio:1;border-radius:20px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.08)}.galleryItem img,.galleryItem video{width:100%;height:100%;object-fit:cover;display:block}.closeBtn{background:rgba(255,255,255,.1);color:#fff;border-radius:14px;padding:10px 14px}.socialPanel{position:fixed;left:7vw;right:7vw;bottom:100px;z-index:90;background:rgba(20,21,24,.82);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(30px);border-radius:25px;padding:16px}.socialPanel a{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;padding:14px;border-radius:15px;background:rgba(255,255,255,.08);margin-top:8px}.socialPanel .closeBtn{width:100%;margin-top:10px}.bgNote{font-size:12px;color:#999;margin-top:7px}
-</style>
+.adminMediaGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 14px}.adminMediaPreview{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.12)}.adminMediaPreview img,.adminMediaPreview video{width:100%;height:100%;object-fit:cover}.mediaDelete{position:absolute;right:6px;top:6px;width:34px;height:34px;border-radius:12px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);color:#fff;font-size:16px}.adminMedia{margin-top:10px}.adminMediaItem .small{margin-top:3px}.</style>
 </head>
 <body>
 <div class="app">
@@ -229,7 +229,7 @@ function pointerUp(e){
 async function likeCurrent(){
  if(!order.length)return;
  const p=profiles.find(x=>x.id===order[pos]);if(!p)return;
- p.favorite=!p.favorite;p.socials={tiktok:document.getElementById("sTik")?.value.trim()||"",vk:document.getElementById("sVk")?.value.trim()||"",instagram:document.getElementById("sIg")?.value.trim()||"",telegram:document.getElementById("sTg")?.value.trim()||"",tgchannel:document.getElementById("sCh")?.value.trim()||""};await put(STORE_PROFILES,p);
+ p.favorite=!p.favorite;await put(STORE_PROFILES,p);
  if(p.favorite){vibrate(28);const hp=document.querySelector(".current .heartPop");if(hp){hp.classList.remove("show");void hp.offsetWidth;hp.classList.add("show")}toast("Добавлено в избранное");}
  else toast("Убрано из избранного");
  renderFav();setTimeout(nextPosition,180);
@@ -264,7 +264,7 @@ async function toggleFavorite(id){const p=profiles.find(x=>x.id===Number(id));if
 function renderAdmin(){
  const root=document.getElementById("adminRoot");
  if(root.dataset.auth!=="1"){
-  root.innerHTML=`<div class="login"><div class="panel"><h2>Админ-панель</h2><label>Пароль</label><input id="adminPass" type="password" placeholder="Введите пароль"><button class="primary" onclick="adminLogin()">Войти</button></div><div class="version">ShellClub · локальное хранилище</div></div>`;
+  root.innerHTML=`<div class="login"><div class="panel"><h2>Админ-панель</h2><label>Пароль</label><input id="adminPass" type="password" placeholder="Введите пароль"><button class="primary" onclick="adminLogin()">Войти</button></div><div class="version">PrivateCatalog · локальное хранилище</div></div>`;
   return;
  }
  root.innerHTML=`<div class="admin">
@@ -274,11 +274,18 @@ function renderAdmin(){
   <label>Возраст</label><input id="fAge" type="number" inputmode="numeric" placeholder="Возраст">
   <label>Город</label><input id="fCity" placeholder="Город">
   <label>Описание</label><textarea id="fDesc" placeholder="Описание"></textarea>
-  <label>Фото и видео</label>
-  <label class="fileBox" for="mediaInput">＋ Выбрать из галереи
+  <h3 style="margin:18px 0 8px">Соц сети</h3>
+  <label>TikTok</label><input id="sTik" placeholder="https://tiktok.com/@...">
+  <label>VK</label><input id="sVk" placeholder="https://vk.com/...">
+  <label>Instagram</label><input id="sIg" placeholder="https://instagram.com/...">
+  <label>Telegram</label><input id="sTg" placeholder="https://t.me/...">
+  <label>Telegram канал</label><input id="sCh" placeholder="https://t.me/...">
+  <h3 style="margin:18px 0 8px">Фото и видео</h3>
+  <label class="fileBox" for="mediaInput">＋ Добавить из галереи
     <input id="mediaInput" type="file" accept="image/*,video/*" multiple onchange="filesSelected()">
   </label>
   <div id="selectedFiles" class="selected">Файлы не выбраны</div>
+  <div id="existingMedia" class="adminMedia"></div>
   <button class="primary" onclick="saveProfile()">${editingId?"Сохранить изменения":"Создать анкету"}</button>
   ${editingId?'<button class="secondary" onclick="cancelEdit()">Отмена</button>':""}
  </div>
@@ -286,9 +293,24 @@ function renderAdmin(){
  </div>`;
  if(editingId){
   const p=profiles.find(x=>x.id===editingId);
-  if(p){fName.value=p.name||"";fAge.value=p.age||"";fCity.value=p.city||"";fDesc.value=p.description||"";sTik.value=p.socials?.tiktok||"";sVk.value=p.socials?.vk||"";sIg.value=p.socials?.instagram||"";sTg.value=p.socials?.telegram||"";sCh.value=p.socials?.tgchannel||""}
+  if(p){
+   document.getElementById("fName").value=p.name||"";document.getElementById("fAge").value=p.age||"";document.getElementById("fCity").value=p.city||"";document.getElementById("fDesc").value=p.description||"";
+   const s=p.socials||{};document.getElementById("sTik").value=s.tiktok||"";document.getElementById("sVk").value=s.vk||"";document.getElementById("sIg").value=s.instagram||"";document.getElementById("sTg").value=s.telegram||"";document.getElementById("sCh").value=s.tgchannel||"";
+   renderExistingMedia(p.id);
+  }
  }
  renderAdminProfiles();
+}
+async function renderExistingMedia(id){
+ const el=document.getElementById("existingMedia");if(!el)return;
+ const ms=await mediaFor(id);
+ el.innerHTML=ms.length?`<div class="small" style="margin-bottom:8px">Загружено: ${ms.length}. Нажми 🗑️, чтобы удалить отдельный файл.</div><div class="adminMediaGrid">${ms.map(m=>{const u=mediaUrl(m);return `<div class="adminMediaItem"><div class="adminMediaPreview">${m.type==="video"?`<video src="${u}" muted playsinline preload="metadata"></video>`:`<img src="${u}">`}<button class="mediaDelete" onclick="deleteMedia('${m.id}')">🗑️</button></div><div class="small">${m.type==="video"?"Видео":"Фото"}</div></div>`}).join("")}</div>`:'<div class="small">Фото и видео ещё не добавлены</div>';
+}
+async function deleteMedia(id){
+ if(!confirm("Удалить этот файл?"))return;
+ await del(STORE_MEDIA,id);
+ if(editingId)await renderExistingMedia(editingId);
+ toast("Файл удалён");
 }
 function adminLogin(){
  if(document.getElementById("adminPass").value==="110123Sex"){document.getElementById("adminRoot").dataset.auth="1";renderAdmin();toast("Вход выполнен")}
@@ -299,26 +321,18 @@ function filesSelected(){
  document.getElementById("selectedFiles").textContent=files.length?files.map(f=>`${f.type.startsWith("video/")?"🎥":"📷"} ${f.name} · ${formatBytes(f.size)}`).join("\n"):"Файлы не выбраны";
 }
 function formatBytes(n){if(n<1024*1024)return Math.round(n/1024)+" КБ";return (n/1024/1024).toFixed(1)+" МБ"}
-
 async function saveProfile(){
  const name=document.getElementById("fName").value.trim(),age=Number(document.getElementById("fAge").value),city=document.getElementById("fCity").value.trim(),description=document.getElementById("fDesc").value.trim();
  if(!name){toast("Укажи имя");return}
  let p=editingId?profiles.find(x=>x.id===editingId):null;
- if(!p){p={id:Date.now()+Math.floor(Math.random()*999),name,age,city,description,favorite:false,createdAt:Date.now()}}
- else {p.name=name;p.age=age;p.city=city;p.description=description}
+ const socials={tiktok:document.getElementById("sTik").value.trim(),vk:document.getElementById("sVk").value.trim(),instagram:document.getElementById("sIg").value.trim(),telegram:document.getElementById("sTg").value.trim(),tgchannel:document.getElementById("sCh").value.trim()};
+ if(!p){p={id:Date.now()+Math.floor(Math.random()*999),name,age,city,description,socials,favorite:false,createdAt:Date.now()}}
+ else {p.name=name;p.age=age;p.city=city;p.description=description;p.socials=socials}
  await put(STORE_PROFILES,p);
  const files=[...document.getElementById("mediaInput").files];
- if(files.length){
-  const old=await mediaFor(p.id);
-  let index=old.length;
-  for(const f of files){
-   await put(STORE_MEDIA,{id:crypto.randomUUID(),profileId:p.id,index:index++,type:f.type.startsWith("video/")?"video":"image",name:f.name,size:f.size,blob:f});
-  }
- }
- profiles=await getAll(STORE_PROFILES);profiles.sort((a,b)=>b.createdAt-a.createdAt);
- order=shuffle(profiles.map(x=>x.id));pos=0;editingId=null;
- document.getElementById("storageStatus").textContent=`${profiles.length} анкет · локально`;
- renderAdmin();renderFav();renderDeck();toast("Сохранено");
+ if(files.length){const old=await mediaFor(p.id);let index=old.length;for(const f of files){await put(STORE_MEDIA,{id:crypto.randomUUID(),profileId:p.id,index:index++,type:f.type.startsWith("video/")?"video":"image",name:f.name,size:f.size,blob:f});}}
+ profiles=await getAll(STORE_PROFILES);profiles.sort((a,b)=>b.createdAt-a.createdAt);order=shuffle(profiles.map(x=>x.id));pos=0;editingId=null;
+ document.getElementById("storageStatus").textContent=`${profiles.length} анкет · локально`;renderAdmin();renderFav();renderDeck();toast("Сохранено");
 }
 async function editProfile(id){editingId=id;renderAdmin();window.scrollTo(0,0)}
 async function deleteProfile(id){
@@ -334,24 +348,6 @@ async function renderAdminProfiles(){
  if(!profiles.length){el.innerHTML='<div class="small">Анкет пока нет</div>';return}
  el.innerHTML=profiles.map(p=>`<div class="adminRow"><div class="grow"><b>${esc(p.name)}, ${esc(p.age)}</b><div class="small">${esc(p.city)} · ${p.favorite?"♥ ":""}${p.id}</div></div><button class="iconBtn" onclick="editProfile(${p.id})">✎</button><button class="iconBtn danger" onclick="deleteProfile(${p.id})">×</button></div>`).join("");
 }
-async function renderEditMedia(){
-  const el=document.getElementById("editMediaList");
-  if(!el||!editingId)return;
-  const ms=await mediaFor(editingId);
-  if(!ms.length){el.innerHTML='<div class="small">Фото и видео пока не добавлены</div>';return}
-  el.innerHTML=ms.map(m=>`
-    <div class="adminRow">
-      ${m.type==="video"?`<video src="${mediaUrl(m)}" muted playsinline></video>`:`<img src="${mediaUrl(m)}">`}
-      <div class="grow"><b>${esc(m.name||"Медиа")}</b><div class="small">${m.type==="video"?"Видео":"Фото"} · ${formatBytes(m.size||0)}</div></div>
-      <button class="iconBtn danger" onclick="deleteMedia('${m.id}')">×</button>
-    </div>`).join("");
-}
-async function deleteMedia(id){
-  if(!confirm("Удалить этот файл?"))return;
-  await del(STORE_MEDIA,id);
-  await renderEditMedia();
-  toast("Медиа удалено");
-}
 function cancelEdit(){editingId=null;renderAdmin()}
 
 load().catch(e=>{console.error(e);toast("Ошибка локального хранилища")});
@@ -359,7 +355,7 @@ load().catch(e=>{console.error(e);toast("Ошибка локального хр�
 function toggleHeartMenu(){document.getElementById("heartMenu").classList.toggle("open")}
 function previousProfile(){if(!order.length)return;pos=(pos-1+order.length)%order.length;renderDeck()}
 function nextProfile(){if(!order.length)return;pos=(pos+1)%order.length;renderDeck()}
-
+async function likeCurrent(){if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);if(!p)return;p.favorite=!p.favorite;await put(STORE_PROFILES,p);document.getElementById("heartButton").classList.toggle("liked",p.favorite);vibrate(28);renderFav();toast(p.favorite?"Добавлено в избранное":"Убрано из избранного")}
 async function openGallery(type){document.getElementById("heartMenu").classList.remove("open");if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);const ms=(await mediaFor(p.id)).filter(x=>x.type===type);if(!ms.length){toast(type==="image"?"Фото нет":"Видео нет");return}const g=document.createElement("div");g.className="gallery";g.innerHTML='<div class="galleryHead"><h2 style="margin:0">'+(type==="image"?"Фото":"Видео")+' · '+ms.length+'</h2><button class="closeBtn" onclick="this.parentElement.parentElement.remove()">Закрыть</button></div><div class="galleryGrid" id="galleryGrid"></div>';document.body.appendChild(g);const grid=g.querySelector("#galleryGrid");ms.forEach(m=>{const u=URL.createObjectURL(m.blob);const d=document.createElement("div");d.className="galleryItem";d.innerHTML=m.type==="video"?`<video src="${u}" controls playsinline preload="metadata"></video>`:`<img src="${u}" loading="lazy">`;grid.appendChild(d)})}
 function openSocials(){document.getElementById("heartMenu").classList.remove("open");if(!order.length)return;const p=profiles.find(x=>x.id===order[pos]);const s=p.socials||{};const links=[["TikTok",s.tiktok,"♪"],["VK",s.vk,"VK"],["Instagram",s.instagram,"◎"],["Telegram",s.telegram,"✈"],["Telegram канал",s.tgchannel,"▣"]].filter(x=>x[1]);const el=document.createElement("div");el.className="socialPanel";el.innerHTML='<h2>Соц сети</h2>'+ (links.length?links.map(x=>`<a href="${esc(x[1])}" target="_blank" rel="noopener"><b>${x[2]}</b>${esc(x[0])}<span style="margin-left:auto">›</span></a>`).join(""): '<div class="bgNote">Соцсети не добавлены</div>')+'<button class="closeBtn" onclick="this.parentElement.remove()">Закрыть</button>';document.body.appendChild(el)}
 </script>
