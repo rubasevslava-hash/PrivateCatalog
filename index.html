@@ -2,222 +2,1157 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width,
+    initial-scale=1,
+    maximum-scale=1,
+    user-scalable=no,
+    viewport-fit=cover"
+>
+
 <title>PrivateCatalog</title>
 
 <style>
+
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
-    margin: 0;
-    background: #0b0b0f;
-    color: white;
-    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(
+            circle at 50% 15%,
+            #292930 0%,
+            #101014 32%,
+            #050506 75%
+        );
+
+    color: #fff;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        Arial,
+        sans-serif;
+
+    overscroll-behavior: none;
 }
+
+
+/* =========================
+   HEADER
+========================= */
 
 header {
-    padding: 20px;
-    text-align: center;
-    font-size: 26px;
-    font-weight: bold;
+
+    height: calc(
+        70px +
+        env(safe-area-inset-top)
+    );
+
+    padding-top:
+        env(safe-area-inset-top);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding-left: 20px;
+    padding-right: 20px;
+
+    position: relative;
+
+    z-index: 50;
 }
+
+.logo {
+
+    font-size: 23px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+}
+
+.logo span {
+
+    color: #77777f;
+
+    font-weight: 400;
+}
+
+.top-button {
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 14px;
+
+    border: 1px solid #2d2d34;
+
+    background: #111114cc;
+
+    color: white;
+
+    font-size: 18px;
+
+    backdrop-filter: blur(15px);
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+#app {
+
+    height:
+        calc(
+            100vh -
+            70px -
+            env(safe-area-inset-top)
+        );
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* =========================
+   TABS
+========================= */
 
 .tabs {
+
     display: flex;
+
     justify-content: center;
-    gap: 10px;
-    padding: 10px 20px 20px;
-    flex-wrap: wrap;
+
+    gap: 8px;
+
+    padding:
+        4px 16px 12px;
 }
 
-button {
-    border: 0;
-    border-radius: 12px;
-    padding: 12px 18px;
-    background: #1b1b23;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
+.tab {
+
+    border: 1px solid #29292f;
+
+    background: #111114aa;
+
+    color: #a5a5ab;
+
+    padding: 9px 15px;
+
+    border-radius: 999px;
+
+    font-size: 13px;
+
+    backdrop-filter: blur(15px);
 }
 
-button.active {
+.tab.active {
+
     background: white;
+
     color: black;
+
+    border-color: white;
 }
 
-#catalog {
-    padding: 10px 15px 40px;
+
+/* =========================
+   SWIPE AREA
+========================= */
+
+.swipe-area {
+
+    position: relative;
+
+    flex: 1;
+
+    min-height: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
 }
+
+.counter {
+
+    position: absolute;
+
+    top: 8px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 20;
+
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    background: #08080bcc;
+
+    border: 1px solid #ffffff18;
+
+    color: #ddd;
+
+    font-size: 11px;
+
+    backdrop-filter: blur(15px);
+}
+
+
+/* =========================
+   CARDS
+========================= */
 
 .card {
-    background: #15151c;
-    border-radius: 20px;
+
+    position: absolute;
+
+    width: 78%;
+
+    max-width: 365px;
+
+    height: 72%;
+
+    max-height: 610px;
+
+    border-radius: 30px;
+
     overflow: hidden;
-    margin-bottom: 18px;
+
+    background: #151517;
+
+    box-shadow:
+        0 30px 80px #000b;
+
+    user-select: none;
+
+    touch-action: none;
+
+    will-change:
+        transform,
+        opacity;
+
+    transition:
+        transform .38s cubic-bezier(
+            .2,
+            .8,
+            .2,
+            1
+        ),
+        opacity .38s ease,
+        filter .38s ease;
 }
 
-.card img {
+.card img,
+.card video {
+
+    position: absolute;
+
     width: 100%;
-    height: 360px;
+    height: 100%;
+
     object-fit: cover;
+
+    display: block;
 }
 
-.info {
-    padding: 16px;
+
+/* затемнение */
+
+.card::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent 40%,
+            rgba(0,0,0,.05) 52%,
+            rgba(0,0,0,.92) 100%
+        );
+
+    z-index: 2;
 }
 
-.name {
-    font-size: 22px;
-    font-weight: bold;
+
+/* боковые */
+
+.card.side {
+
+    width: 61%;
+
+    height: 63%;
+
+    max-width: 290px;
+
+    opacity: .45;
+
+    filter:
+        brightness(.48)
+        saturate(.75);
+
+    z-index: 1;
 }
 
-.description {
-    color: #aaa;
-    margin-top: 8px;
+.card.prev {
+
+    transform:
+        translateX(-77%)
+        scale(.86);
 }
 
-.actions {
+.card.next {
+
+    transform:
+        translateX(77%)
+        scale(.86);
+}
+
+
+/* центральная */
+
+.card.current {
+
+    z-index: 5;
+}
+
+
+/* =========================
+   PROFILE INFO
+========================= */
+
+.profile-info {
+
+    position: absolute;
+
+    z-index: 8;
+
+    left: 22px;
+    right: 22px;
+
+    bottom: 22px;
+}
+
+.photo-dots {
+
     display: flex;
-    gap: 8px;
-    margin-top: 15px;
+
+    gap: 5px;
+
+    margin-bottom: 14px;
 }
 
-.actions button {
+.photo-dot {
+
+    height: 3px;
+
     flex: 1;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.32);
 }
 
-.favorite {
-    background: #292933;
+.photo-dot.active {
+
+    background: white;
 }
+
+.profile-name {
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.profile-city {
+
+    margin-top: 9px;
+
+    color: #eee;
+
+    font-size: 14px;
+}
+
+.profile-description {
+
+    margin-top: 8px;
+
+    color: #c5c5ca;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+.profile-badge {
+
+    display: inline-flex;
+
+    margin-top: 12px;
+
+    padding:
+        7px 10px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.12);
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+    font-size: 11px;
+
+    backdrop-filter: blur(12px);
+}
+
+
+/* =========================
+   SWIPE HINT
+========================= */
+
+.hint {
+
+    height: 28px;
+
+    text-align: center;
+
+    color: #6f6f77;
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   CONTROLS
+========================= */
+
+.controls {
+
+    height: 105px;
+
+    padding-bottom:
+        calc(
+            12px +
+            env(safe-area-inset-bottom)
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 20px;
+}
+
+.control {
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50%;
+
+    border: 1px solid #29292f;
+
+    background: #111114;
+
+    color: white;
+
+    font-size: 24px;
+
+    box-shadow:
+        0 12px 30px #0008;
+}
+
+.control-small {
+
+    width: 48px;
+    height: 48px;
+
+    font-size: 18px;
+}
+
+.control-like {
+
+    width: 70px;
+    height: 70px;
+
+    font-size: 30px;
+
+    color: #ff315d;
+
+    border:
+        1px solid
+        rgba(255,49,93,.45);
+
+    background:
+        linear-gradient(
+            145deg,
+            #291016,
+            #130a0e
+        );
+}
+
+
+/* =========================
+   HEART ANIMATION
+========================= */
+
+.heart-animation {
+
+    position: absolute;
+
+    z-index: 50;
+
+    left: 50%;
+    top: 45%;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        )
+        scale(.2);
+
+    font-size: 110px;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.heart-animation.show {
+
+    animation:
+        heartAnimation .72s
+        cubic-bezier(
+            .2,
+            .9,
+            .3,
+            1
+        );
+}
+
+@keyframes heartAnimation {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(.2);
+    }
+
+    25% {
+
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.25);
+    }
+
+    60% {
+
+        opacity: 1;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1);
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%,-50%)
+            scale(1.15);
+    }
+}
+
+
+/* =========================
+   FLASH
+========================= */
+
+.flash {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: white;
+
+    opacity: 0;
+
+    z-index: 40;
+
+    pointer-events: none;
+}
+
+.flash.show {
+
+    animation:
+        flashAnimation .35s;
+}
+
+@keyframes flashAnimation {
+
+    0% {
+        opacity: .13;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* =========================
+   EMPTY
+========================= */
 
 .empty {
+
+    width: 100%;
+
     text-align: center;
-    color: #888;
-    padding: 50px 20px;
+
+    color: #777;
+
+    padding: 80px 25px;
+
+    font-size: 14px;
 }
 
-.admin-panel {
+
+/* =========================
+   ADMIN
+========================= */
+
+#adminScreen,
+#loginScreen {
+
     display: none;
-    padding: 20px 15px 50px;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            #222229,
+            #09090c 55%
+        );
+
+    overflow-y: auto;
+
+    padding:
+        calc(
+            20px +
+            env(safe-area-inset-top)
+        )
+        16px
+        calc(
+            30px +
+            env(safe-area-inset-bottom)
+        );
 }
 
-.admin-panel h2 {
-    margin-top: 0;
+.admin-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+.admin-header h2 {
+
+    margin: 0;
+
+    font-size: 25px;
 }
 
 .admin-card {
-    background: #15151c;
-    padding: 16px;
-    border-radius: 18px;
-    margin-bottom: 15px;
+
+    background:
+        rgba(20,20,24,.9);
+
+    border:
+        1px solid #292930;
+
+    border-radius: 22px;
+
+    padding: 17px;
+
+    margin-bottom: 16px;
+
+    box-shadow:
+        0 15px 40px #0006;
+}
+
+.admin-card h3 {
+
+    margin-top: 0;
 }
 
 input,
 textarea {
+
     width: 100%;
-    background: #1b1b23;
+
+    background: #111114;
+
     color: white;
-    border: 1px solid #33333d;
-    border-radius: 12px;
-    padding: 12px;
-    margin: 6px 0 12px;
+
+    border: 1px solid #303039;
+
+    border-radius: 13px;
+
+    padding: 13px;
+
+    margin:
+        5px 0
+        11px;
+
     font-size: 15px;
+
+    outline: none;
 }
 
 textarea {
+
     min-height: 90px;
+
     resize: vertical;
 }
 
-.admin-buttons {
-    display: flex;
-    gap: 8px;
+input:focus,
+textarea:focus {
+
+    border-color: #666671;
 }
 
-.admin-buttons button {
+.admin-button {
+
+    width: 100%;
+
+    background: white;
+
+    color: black;
+
+    font-weight: 700;
+}
+
+.media-preview {
+
+    display: flex;
+
+    gap: 8px;
+
+    overflow-x: auto;
+
+    margin: 8px 0 12px;
+}
+
+.media-item {
+
+    position: relative;
+
+    min-width: 85px;
+
+    height: 85px;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    background: #09090b;
+}
+
+.media-item img,
+.media-item video {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.remove-media {
+
+    position: absolute;
+
+    top: 4px;
+    right: 4px;
+
+    width: 25px;
+    height: 25px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background: #000b;
+
+    color: white;
+
+    font-size: 14px;
+}
+
+.admin-profile {
+
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+.admin-thumb {
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 14px;
+
+    object-fit: cover;
+
+    background: #222;
+}
+
+.admin-name {
+
+    font-weight: 700;
+}
+
+.admin-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.admin-actions button {
+
     flex: 1;
 }
 
-.delete {
-    background: #512020;
+.delete-button {
+
+    background: #421b22;
 }
 
-.edit {
-    background: #252540;
-}
+.edit-button {
 
-#loginBox {
-    display: none;
-    padding: 30px 20px;
-    text-align: center;
-}
-
-#loginBox input {
-    max-width: 350px;
-}
-
-.login-error {
-    color: #ff6b6b;
-    margin-top: 10px;
-    display: none;
+    background: #222239;
 }
 
 .back-button {
+
+    background: #1b1b22;
+
     margin-bottom: 15px;
 }
+
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-box {
+
+    max-width: 380px;
+
+    margin:
+        80px auto;
+
+    text-align: center;
+}
+
+.login-box h2 {
+
+    margin-bottom: 25px;
+}
+
+.login-error {
+
+    color: #ff647d;
+
+    margin-top: 10px;
+
+    display: none;
+}
+
 </style>
 </head>
 
 <body>
 
-<header>PrivateCatalog</header>
 
-<div class="tabs" id="mainTabs">
-    <button id="allBtn" class="active" onclick="showAll()">Анкеты</button>
-    <button id="favBtn" onclick="showFavorites()">Избранное</button>
-    <button onclick="openLogin()">Админ</button>
-</div>
+<header>
 
-<div id="catalog"></div>
-
-<div id="loginBox">
-    <h2>Вход администратора</h2>
-
-    <input
-        type="password"
-        id="adminPassword"
-        placeholder="Введите пароль"
-    >
-
-    <br>
-
-    <button onclick="loginAdmin()">Войти</button>
-
-    <div id="loginError" class="login-error">
-        Неверный пароль
+    <div class="logo">
+        Private<span>Catalog</span>
     </div>
 
-    <br><br>
-
-    <button onclick="closeLogin()">Назад</button>
-</div>
-
-<div class="admin-panel" id="adminPanel">
-
-    <button class="back-button" onclick="exitAdmin()">
-        ← Вернуться к анкетам
+    <button
+        class="top-button"
+        onclick="openLogin()"
+    >
+        ⚙
     </button>
 
-    <h2>Админ-панель</h2>
+</header>
+
+
+<div id="app">
+
+
+    <div class="tabs">
+
+        <button
+            id="allTab"
+            class="tab active"
+            onclick="showAll()"
+        >
+            Анкеты
+        </button>
+
+        <button
+            id="favTab"
+            class="tab"
+            onclick="showFavorites()"
+        >
+            Избранное
+        </button>
+
+    </div>
+
+
+    <div
+        class="swipe-area"
+        id="swipeArea"
+    >
+
+        <div
+            class="counter"
+            id="counter"
+        ></div>
+
+        <div
+            class="flash"
+            id="flash"
+        ></div>
+
+        <div
+            class="heart-animation"
+            id="heartAnimation"
+        >
+            ♥
+        </div>
+
+
+        <div
+            class="card side prev"
+            id="prevCard"
+        ></div>
+
+        <div
+            class="card current"
+            id="currentCard"
+        ></div>
+
+        <div
+            class="card side next"
+            id="nextCard"
+        ></div>
+
+    </div>
+
+
+    <div class="hint">
+
+        Свайп вправо — в избранное
+        ·
+        влево — пропустить
+
+    </div>
+
+
+    <div class="controls">
+
+        <button
+            class="control control-small"
+            onclick="goBack()"
+        >
+            ↶
+        </button>
+
+        <button
+            class="control"
+            onclick="skipProfile()"
+        >
+            ×
+        </button>
+
+        <button
+            class="control control-like"
+            onclick="likeProfile()"
+        >
+            ♥
+        </button>
+
+        <button
+            class="control control-small"
+            onclick="likeProfile()"
+        >
+            ☆
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     LOGIN
+========================= -->
+
+<div id="loginScreen">
+
+    <div class="login-box">
+
+        <button
+            class="back-button"
+            onclick="closeLogin()"
+        >
+            ← Назад
+        </button>
+
+        <h2>
+            Администратор
+        </h2>
+
+        <input
+            type="password"
+            id="adminPassword"
+            placeholder="Пароль"
+        >
+
+        <button
+            class="admin-button"
+            onclick="loginAdmin()"
+        >
+            Войти
+        </button>
+
+        <div
+            id="loginError"
+            class="login-error"
+        >
+            Неверный пароль
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     ADMIN
+========================= -->
+
+<div id="adminScreen">
+
+    <div class="admin-header">
+
+        <h2>
+            Админ-панель
+        </h2>
+
+        <button
+            onclick="exitAdmin()"
+        >
+            Закрыть
+        </button>
+
+    </div>
+
 
     <div class="admin-card">
-        <h3>Добавить анкету</h3>
+
+        <h3>
+            Новая анкета
+        </h3>
 
         <input
             id="newName"
             placeholder="Имя"
+        >
+
+        <input
+            id="newCity"
+            placeholder="Город"
+        >
+
+        <input
+            id="newAge"
+            type="number"
+            placeholder="Возраст"
         >
 
         <textarea
@@ -225,219 +1160,1084 @@ textarea {
             placeholder="Описание"
         ></textarea>
 
+
+        <label>
+            Фото и видео
+        </label>
+
         <input
-            id="newImage"
-            placeholder="Ссылка на изображение"
+            id="newMedia"
+            type="file"
+            accept="image/*,video/*"
+            multiple
         >
 
-        <button onclick="addProfile()">
-            + Добавить анкету
+        <div
+            id="newMediaPreview"
+            class="media-preview"
+        ></div>
+
+
+        <button
+            class="admin-button"
+            onclick="addProfile()"
+        >
+            ＋ Добавить анкету
         </button>
+
     </div>
 
-    <h3>Существующие анкеты</h3>
+
+    <h3>
+        Существующие анкеты
+    </h3>
+
 
     <div id="adminProfiles"></div>
 
 </div>
 
+
 <script>
 
-const ADMIN_PASSWORD = "110123Sex";
+
+/* =========================
+   НАСТРОЙКИ
+========================= */
+
+const ADMIN_PASSWORD =
+    "110123Sex";
+
+
+/* =========================
+   ДЕФОЛТНЫЕ АНКЕТЫ
+========================= */
 
 const defaultProfiles = [
+
     {
         id: 1,
+
         name: "Александра",
-        description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900"
+
+        age: 21,
+
+        city: "Москва",
+
+        description:
+            "Описание анкеты",
+
+        media: [
+
+            {
+                type: "image",
+
+                src:
+                "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1000"
+            },
+
+            {
+                type: "image",
+
+                src:
+                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1000"
+            }
+
+        ]
     },
+
+
     {
         id: 2,
+
         name: "Мария",
-        description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900"
+
+        age: 22,
+
+        city: "Санкт-Петербург",
+
+        description:
+            "Описание анкеты",
+
+        media: [
+
+            {
+                type: "image",
+
+                src:
+                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1000"
+            },
+
+            {
+                type: "image",
+
+                src:
+                "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1000"
+            }
+
+        ]
     },
+
+
     {
         id: 3,
+
         name: "Елена",
-        description: "Описание анкеты",
-        image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900"
+
+        age: 20,
+
+        city: "Казань",
+
+        description:
+            "Описание анкеты",
+
+        media: [
+
+            {
+                type: "image",
+
+                src:
+                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1000"
+            }
+
+        ]
     }
+
 ];
 
-let profiles = JSON.parse(
-    localStorage.getItem("profiles")
-) || defaultProfiles;
 
-let favorites = JSON.parse(
-    localStorage.getItem("favorites") || "[]"
-);
+/* =========================
+   DATA
+========================= */
+
+let profiles =
+    JSON.parse(
+        localStorage.getItem(
+            "profiles"
+        )
+    ) ||
+    defaultProfiles;
+
+
+let favorites =
+    JSON.parse(
+        localStorage.getItem(
+            "favorites"
+        ) ||
+        "[]"
+    );
+
+
+let currentList = [];
+
+let currentIndex = 0;
+
+let currentMediaIndex = 0;
+
+let startX = 0;
+
+let dragging = false;
+
+
+/* =========================
+   SAVE
+========================= */
 
 function saveProfiles() {
+
     localStorage.setItem(
         "profiles",
-        JSON.stringify(profiles)
-    );
-}
-
-function randomProfiles() {
-    return [...profiles].sort(
-        () => Math.random() - 0.5
-    );
-}
-
-function render(list) {
-
-    const catalog =
-        document.getElementById("catalog");
-
-    if (!list.length) {
-
-        catalog.innerHTML =
-            '<div class="empty">В избранном пока ничего нет</div>';
-
-        return;
-    }
-
-    catalog.innerHTML = list.map(profile => `
-
-        <div class="card">
-
-            <img
-                src="${profile.image}"
-                onerror="this.style.display='none'"
-            >
-
-            <div class="info">
-
-                <div class="name">
-                    ${profile.name}
-                </div>
-
-                <div class="description">
-                    ${profile.description}
-                </div>
-
-                <div class="actions">
-
-                    <button
-                        onclick="openProfile(${profile.id})"
-                    >
-                        Открыть
-                    </button>
-
-                    <button
-                        class="favorite"
-                        onclick="toggleFavorite(${profile.id})"
-                    >
-                        ${
-                            favorites.includes(profile.id)
-                            ? "★ В избранном"
-                            : "☆ В избранное"
-                        }
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `).join("");
-}
-
-function showAll() {
-
-    document.getElementById("allBtn")
-        .classList.add("active");
-
-    document.getElementById("favBtn")
-        .classList.remove("active");
-
-    render(randomProfiles());
-}
-
-function showFavorites() {
-
-    document.getElementById("favBtn")
-        .classList.add("active");
-
-    document.getElementById("allBtn")
-        .classList.remove("active");
-
-    render(
-        profiles.filter(
-            p => favorites.includes(p.id)
+        JSON.stringify(
+            profiles
         )
     );
 }
 
-function toggleFavorite(id) {
 
-    if (favorites.includes(id)) {
-
-        favorites =
-            favorites.filter(
-                x => x !== id
-            );
-
-    } else {
-
-        favorites.push(id);
-
-    }
+function saveFavorites() {
 
     localStorage.setItem(
         "favorites",
-        JSON.stringify(favorites)
-    );
-
-    showAll();
-}
-
-function openProfile(id) {
-
-    const profile =
-        profiles.find(
-            p => p.id === id
-        );
-
-    alert(
-        profile.name +
-        "\n\n" +
-        profile.description
+        JSON.stringify(
+            favorites
+        )
     );
 }
 
 
 /* =========================
-   АДМИНКА
+   RANDOM
+========================= */
+
+function shuffle(array) {
+
+    return [...array].sort(
+        () =>
+            Math.random() -
+            0.5
+    );
+}
+
+
+/* =========================
+   MEDIA
+========================= */
+
+function getMedia(profile) {
+
+    if (
+        profile.media &&
+        profile.media.length
+    ) {
+
+        return profile.media;
+
+    }
+
+
+    if (profile.image) {
+
+        return [
+
+            {
+                type: "image",
+
+                src:
+                    profile.image
+
+            }
+
+        ];
+
+    }
+
+
+    return [];
+
+}
+
+
+/* =========================
+   CARD HTML
+========================= */
+
+function cardHTML(
+    profile,
+    mediaIndex
+) {
+
+    if (!profile) {
+        return "";
+    }
+
+
+    const media =
+        getMedia(profile);
+
+
+    if (!media.length) {
+
+        return `
+
+            <div class="profile-info">
+
+                <div class="profile-name">
+                    ${profile.name}
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    const index =
+        Math.min(
+            mediaIndex,
+            media.length - 1
+        );
+
+
+    const item =
+        media[index];
+
+
+    let mediaHTML = "";
+
+
+    if (
+        item.type ===
+        "video"
+    ) {
+
+        mediaHTML = `
+
+            <video
+                src="${item.src}"
+                autoplay
+                muted
+                loop
+                playsinline
+            ></video>
+
+        `;
+
+    } else {
+
+        mediaHTML = `
+
+            <img
+                src="${item.src}"
+                draggable="false"
+            >
+
+        `;
+
+    }
+
+
+    const dots =
+        media.map(
+            (_, i) => `
+
+                <div
+                    class="
+                        photo-dot
+                        ${
+                            i === index
+                            ? "active"
+                            : ""
+                        }
+                    "
+                ></div>
+
+            `
+        ).join("");
+
+
+    return `
+
+        ${mediaHTML}
+
+
+        <div class="profile-info">
+
+            <div class="photo-dots">
+
+                ${dots}
+
+            </div>
+
+
+            <div class="profile-name">
+
+                ${escapeHTML(
+                    profile.name
+                )}
+
+                ${
+                    profile.age
+                    ? ", " +
+                      profile.age
+                    : ""
+                }
+
+            </div>
+
+
+            ${
+                profile.city
+                ? `
+
+                    <div class="profile-city">
+
+                        ${escapeHTML(
+                            profile.city
+                        )}
+
+                    </div>
+
+                `
+                : ""
+            }
+
+
+            <div class="profile-description">
+
+                ${escapeHTML(
+                    profile.description ||
+                    ""
+                )}
+
+            </div>
+
+
+            <div class="profile-badge">
+
+                PrivateCatalog
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+/* =========================
+   ESCAPE
+========================= */
+
+function escapeHTML(
+    text
+) {
+
+    return String(text)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+}
+
+
+/* =========================
+   RENDER
+========================= */
+
+function renderDeck() {
+
+    const current =
+        currentList[
+            currentIndex
+        ];
+
+    if (!current) {
+
+        document.getElementById(
+            "prevCard"
+        ).innerHTML = "";
+
+        document.getElementById(
+            "currentCard"
+        ).innerHTML = "";
+
+        document.getElementById(
+            "nextCard"
+        ).innerHTML = "";
+
+        document.getElementById(
+            "counter"
+        ).textContent = "";
+
+        return;
+
+    }
+
+
+    const length =
+        currentList.length;
+
+
+    const prev =
+        currentList[
+            (currentIndex - 1 + length)
+            % length
+        ];
+
+
+    const next =
+        currentList[
+            (currentIndex + 1)
+            % length
+        ];
+
+
+    document.getElementById(
+        "currentCard"
+    ).innerHTML =
+        cardHTML(
+            current,
+            currentMediaIndex
+        );
+
+
+    document.getElementById(
+        "prevCard"
+    ).innerHTML =
+        cardHTML(
+            prev,
+            0
+        );
+
+
+    document.getElementById(
+        "nextCard"
+    ).innerHTML =
+        cardHTML(
+            next,
+            0
+        );
+
+
+    document.getElementById(
+        "counter"
+    ).textContent =
+        `${currentIndex + 1} / ${length}`;
+
+
+    resetCurrentTransform();
+
+}
+
+
+/* =========================
+   ALL
+========================= */
+
+function showAll() {
+
+    document.getElementById(
+        "allTab"
+    ).classList.add(
+        "active"
+    );
+
+    document.getElementById(
+        "favTab"
+    ).classList.remove(
+        "active"
+    );
+
+
+    currentList =
+        shuffle(profiles);
+
+
+    currentIndex = 0;
+
+    currentMediaIndex = 0;
+
+
+    renderDeck();
+
+}
+
+
+/* =========================
+   FAVORITES
+========================= */
+
+function showFavorites() {
+
+    document.getElementById(
+        "favTab"
+    ).classList.add(
+        "active"
+    );
+
+    document.getElementById(
+        "allTab"
+    ).classList.remove(
+        "active"
+    );
+
+
+    currentList =
+        profiles.filter(
+            profile =>
+                favorites.includes(
+                    profile.id
+                )
+        );
+
+
+    currentIndex = 0;
+
+    currentMediaIndex = 0;
+
+
+    renderDeck();
+
+}
+
+
+/* =========================
+   NEXT
+========================= */
+
+function nextProfile() {
+
+    if (
+        !currentList.length
+    ) {
+        return;
+    }
+
+
+    currentIndex++;
+
+
+    if (
+        currentIndex >=
+        currentList.length
+    ) {
+
+        currentIndex = 0;
+
+    }
+
+
+    currentMediaIndex = 0;
+
+
+    renderDeck();
+
+}
+
+
+/* =========================
+   PREVIOUS
+========================= */
+
+function previousProfile() {
+
+    if (
+        !currentList.length
+    ) {
+        return;
+    }
+
+
+    currentIndex--;
+
+
+    if (
+        currentIndex < 0
+    ) {
+
+        currentIndex =
+            currentList.length - 1;
+
+    }
+
+
+    currentMediaIndex = 0;
+
+
+    renderDeck();
+
+}
+
+
+function goBack() {
+
+    previousProfile();
+
+}
+
+
+/* =========================
+   SKIP
+========================= */
+
+function skipProfile() {
+
+    const card =
+        document.getElementById(
+            "currentCard"
+        );
+
+
+    card.style.transform =
+        "translateX(-130%) rotate(-16deg)";
+
+
+    setTimeout(
+        () => {
+
+            nextProfile();
+
+        },
+        180
+    );
+
+}
+
+
+/* =========================
+   LIKE
+========================= */
+
+function likeProfile() {
+
+    const profile =
+        currentList[
+            currentIndex
+        ];
+
+
+    if (!profile) {
+        return;
+    }
+
+
+    if (
+        !favorites.includes(
+            profile.id
+        )
+    ) {
+
+        favorites.push(
+            profile.id
+        );
+
+        saveFavorites();
+
+    }
+
+
+    const heart =
+        document.getElementById(
+            "heartAnimation"
+        );
+
+
+    heart.classList.remove(
+        "show"
+    );
+
+
+    void heart.offsetWidth;
+
+
+    heart.classList.add(
+        "show"
+    );
+
+
+    const flash =
+        document.getElementById(
+            "flash"
+        );
+
+
+    flash.classList.remove(
+        "show"
+    );
+
+
+    void flash.offsetWidth;
+
+
+    flash.classList.add(
+        "show"
+    );
+
+
+    if (
+        navigator.vibrate
+    ) {
+
+        navigator.vibrate(
+            [15, 30, 20]
+        );
+
+    }
+
+
+    const card =
+        document.getElementById(
+            "currentCard"
+        );
+
+
+    card.style.transform =
+        "translateX(130%) rotate(16deg)";
+
+
+    setTimeout(
+        () => {
+
+            nextProfile();
+
+        },
+        180
+    );
+
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetCurrentTransform() {
+
+    const card =
+        document.getElementById(
+            "currentCard"
+        );
+
+
+    card.style.transform =
+        "";
+
+}
+
+
+/* =========================
+   TOUCH / POINTER
+========================= */
+
+const currentCard =
+    document.getElementById(
+        "currentCard"
+    );
+
+
+currentCard.addEventListener(
+    "pointerdown",
+    event => {
+
+        dragging = true;
+
+        startX =
+            event.clientX;
+
+        currentCard.style.transition =
+            "none";
+
+        currentCard.setPointerCapture(
+            event.pointerId
+        );
+
+    }
+);
+
+
+currentCard.addEventListener(
+    "pointermove",
+    event => {
+
+        if (!dragging) {
+            return;
+        }
+
+
+        const delta =
+            event.clientX -
+            startX;
+
+
+        currentCard.style.transform =
+            `
+            translateX(${delta}px)
+            rotate(${delta / 18}deg)
+            `;
+
+    }
+);
+
+
+currentCard.addEventListener(
+    "pointerup",
+    event => {
+
+        if (!dragging) {
+            return;
+        }
+
+
+        dragging = false;
+
+
+        const delta =
+            event.clientX -
+            startX;
+
+
+        currentCard.style.transition =
+            "";
+
+
+        if (
+            Math.abs(delta) > 85
+        ) {
+
+            if (delta > 0) {
+
+                likeProfile();
+
+            } else {
+
+                skipProfile();
+
+            }
+
+            return;
+
+        }
+
+
+        resetCurrentTransform();
+
+    }
+);
+
+
+/* =========================
+   CHANGE PHOTO
+========================= */
+
+currentCard.addEventListener(
+    "click",
+    event => {
+
+        if (dragging) {
+            return;
+        }
+
+
+        const profile =
+            currentList[
+                currentIndex
+            ];
+
+
+        if (!profile) {
+            return;
+        }
+
+
+        const media =
+            getMedia(profile);
+
+
+        if (
+            media.length <= 1
+        ) {
+
+            return;
+
+        }
+
+
+        const rect =
+            currentCard.getBoundingClientRect();
+
+
+        const x =
+            event.clientX -
+            rect.left;
+
+
+        if (
+            x <
+            rect.width * .30
+        ) {
+
+            currentMediaIndex--;
+
+
+            if (
+                currentMediaIndex < 0
+            ) {
+
+                currentMediaIndex =
+                    media.length - 1;
+
+            }
+
+            renderDeck();
+
+        }
+
+
+        else if (
+            x >
+            rect.width * .70
+        ) {
+
+            currentMediaIndex++;
+
+
+            if (
+                currentMediaIndex >=
+                media.length
+            ) {
+
+                currentMediaIndex = 0;
+
+            }
+
+            renderDeck();
+
+        }
+
+    }
+);
+
+
+/* =========================
+   LOGIN
 ========================= */
 
 function openLogin() {
 
-    document.getElementById("catalog")
-        .style.display = "none";
+    document.getElementById(
+        "loginScreen"
+    ).style.display =
+        "block";
 
-    document.getElementById("mainTabs")
-        .style.display = "none";
-
-    document.getElementById("loginBox")
-        .style.display = "block";
 }
+
 
 function closeLogin() {
 
-    document.getElementById("loginBox")
-        .style.display = "none";
+    document.getElementById(
+        "loginScreen"
+    ).style.display =
+        "none";
 
-    document.getElementById("catalog")
-        .style.display = "block";
 
-    document.getElementById("mainTabs")
-        .style.display = "flex";
+    document.getElementById(
+        "adminPassword"
+    ).value = "";
+
+
+    document.getElementById(
+        "loginError"
+    ).style.display =
+        "none";
+
 }
+
+
+/* =========================
+   ADMIN LOGIN
+========================= */
 
 function loginAdmin() {
 
@@ -446,109 +2246,380 @@ function loginAdmin() {
             "adminPassword"
         ).value;
 
-    if (password === ADMIN_PASSWORD) {
+
+    if (
+        password ===
+        ADMIN_PASSWORD
+    ) {
 
         document.getElementById(
-            "loginBox"
-        ).style.display = "none";
+            "loginScreen"
+        ).style.display =
+            "none";
+
 
         document.getElementById(
-            "adminPanel"
-        ).style.display = "block";
+            "adminScreen"
+        ).style.display =
+            "block";
+
 
         renderAdmin();
 
-    } else {
+    }
+
+    else {
 
         document.getElementById(
             "loginError"
-        ).style.display = "block";
+        ).style.display =
+            "block";
 
     }
+
 }
+
+
+/* =========================
+   EXIT ADMIN
+========================= */
 
 function exitAdmin() {
 
     document.getElementById(
-        "adminPanel"
-    ).style.display = "none";
+        "adminScreen"
+    ).style.display =
+        "none";
 
-    document.getElementById(
-        "mainTabs"
-    ).style.display = "flex";
-
-    document.getElementById(
-        "catalog"
-    ).style.display = "block";
-
-    document.getElementById(
-        "adminPassword"
-    ).value = "";
-
-    document.getElementById(
-        "loginError"
-    ).style.display = "none";
 
     showAll();
+
 }
 
-function addProfile() {
+
+/* =========================
+   NEW MEDIA
+========================= */
+
+let newMediaFiles = [];
+
+
+document.getElementById(
+    "newMedia"
+).addEventListener(
+    "change",
+    event => {
+
+        newMediaFiles =
+            Array.from(
+                event.target.files
+            );
+
+
+        renderNewMediaPreview();
+
+    }
+);
+
+
+function renderNewMediaPreview() {
+
+    const container =
+        document.getElementById(
+            "newMediaPreview"
+        );
+
+
+    container.innerHTML = "";
+
+
+    newMediaFiles.forEach(
+        (file, index) => {
+
+            const url =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "media-item";
+
+
+            let element;
+
+
+            if (
+                file.type.startsWith(
+                    "video/"
+                )
+            ) {
+
+                element =
+                    document.createElement(
+                        "video"
+                    );
+
+                element.src = url;
+
+                element.muted = true;
+
+            }
+
+            else {
+
+                element =
+                    document.createElement(
+                        "img"
+                    );
+
+                element.src = url;
+
+            }
+
+
+            const remove =
+                document.createElement(
+                    "button"
+                );
+
+
+            remove.className =
+                "remove-media";
+
+            remove.textContent =
+                "×";
+
+
+            remove.onclick =
+                () => {
+
+                    newMediaFiles.splice(
+                        index,
+                        1
+                    );
+
+                    renderNewMediaPreview();
+
+                };
+
+
+            item.appendChild(
+                element
+            );
+
+            item.appendChild(
+                remove
+            );
+
+
+            container.appendChild(
+                item
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================
+   FILE -> BASE64
+========================= */
+
+function fileToDataURL(
+    file
+) {
+
+    return new Promise(
+        resolve => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                () => {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================
+   ADD PROFILE
+========================= */
+
+async function addProfile() {
 
     const name =
         document.getElementById(
             "newName"
         ).value.trim();
 
+
+    const city =
+        document.getElementById(
+            "newCity"
+        ).value.trim();
+
+
+    const age =
+        Number(
+            document.getElementById(
+                "newAge"
+            ).value
+        );
+
+
     const description =
         document.getElementById(
             "newDescription"
         ).value.trim();
 
-    const image =
-        document.getElementById(
-            "newImage"
-        ).value.trim();
 
-    if (!name || !description || !image) {
+    if (!name) {
 
-        alert("Заполни все поля");
+        alert(
+            "Укажи имя"
+        );
 
         return;
+
     }
 
-    const newProfile = {
 
-        id: Date.now(),
+    if (
+        !newMediaFiles.length
+    ) {
 
-        name: name,
+        alert(
+            "Добавь хотя бы одно фото или видео"
+        );
 
-        description: description,
+        return;
 
-        image: image
+    }
 
-    };
 
-    profiles.push(newProfile);
+    const media = [];
+
+
+    for (
+        const file
+        of newMediaFiles
+    ) {
+
+        const src =
+            await fileToDataURL(
+                file
+            );
+
+
+        media.push({
+
+            type:
+                file.type.startsWith(
+                    "video/"
+                )
+                ? "video"
+                : "image",
+
+            src:
+                src
+
+        });
+
+    }
+
+
+    profiles.push({
+
+        id:
+            Date.now(),
+
+        name:
+            name,
+
+        age:
+            age || "",
+
+        city:
+            city,
+
+        description:
+            description,
+
+        media:
+            media
+
+    });
+
 
     saveProfiles();
+
 
     document.getElementById(
         "newName"
     ).value = "";
 
+
+    document.getElementById(
+        "newCity"
+    ).value = "";
+
+
+    document.getElementById(
+        "newAge"
+    ).value = "";
+
+
     document.getElementById(
         "newDescription"
     ).value = "";
 
+
     document.getElementById(
-        "newImage"
+        "newMedia"
     ).value = "";
+
+
+    newMediaFiles = [];
+
+
+    renderNewMediaPreview();
 
     renderAdmin();
 
-    alert("Анкета добавлена");
+
+    alert(
+        "Анкета добавлена"
+    );
 
 }
+
+
+/* =========================
+   ADMIN LIST
+========================= */
 
 function renderAdmin() {
 
@@ -557,7 +2628,10 @@ function renderAdmin() {
             "adminProfiles"
         );
 
-    if (!profiles.length) {
+
+    if (
+        !profiles.length
+    ) {
 
         container.innerHTML =
             "<p>Анкет пока нет.</p>";
@@ -566,120 +2640,252 @@ function renderAdmin() {
 
     }
 
+
     container.innerHTML =
-        profiles.map(profile => `
+        profiles.map(
+            profile => {
 
-        <div class="admin-card">
+                const media =
+                    getMedia(
+                        profile
+                    );
 
-            <strong>
-                ${profile.name}
-            </strong>
 
-            <br><br>
+                const thumb =
+                    media.length
+                    ? media[0].src
+                    : "";
 
-            <input
-                id="name-${profile.id}"
-                value="${profile.name}"
-            >
 
-            <textarea
-                id="desc-${profile.id}"
-            >${profile.description}</textarea>
+                return `
 
-            <input
-                id="image-${profile.id}"
-                value="${profile.image}"
-            >
+                    <div
+                        class="admin-card"
+                    >
 
-            <div class="admin-buttons">
+                        <div
+                            class="admin-profile"
+                        >
 
-                <button
-                    class="edit"
-                    onclick="saveProfile(${profile.id})"
-                >
-                    Сохранить
-                </button>
+                            ${
+                                thumb
+                                ? `
+                                    <img
+                                        class="admin-thumb"
+                                        src="${thumb}"
+                                    >
+                                `
+                                : ""
+                            }
 
-                <button
-                    class="delete"
-                    onclick="deleteProfile(${profile.id})"
-                >
-                    Удалить
-                </button>
+                            <div>
 
-            </div>
+                                <div
+                                    class="admin-name"
+                                >
 
-        </div>
+                                    ${escapeHTML(
+                                        profile.name
+                                    )}
 
-    `).join("");
+                                </div>
+
+                                <small>
+                                    ${
+                                        media.length
+                                    }
+                                    медиа
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <input
+                            id="name-${profile.id}"
+                            value="${escapeHTML(profile.name)}"
+                            placeholder="Имя"
+                        >
+
+
+                        <input
+                            id="city-${profile.id}"
+                            value="${escapeHTML(profile.city || "")}"
+                            placeholder="Город"
+                        >
+
+
+                        <input
+                            id="age-${profile.id}"
+                            type="number"
+                            value="${profile.age || ""}"
+                            placeholder="Возраст"
+                        >
+
+
+                        <textarea
+                            id="desc-${profile.id}"
+                            placeholder="Описание"
+                        >${escapeHTML(profile.description || "")}</textarea>
+
+
+                        <div
+                            class="admin-actions"
+                        >
+
+                            <button
+                                class="edit-button"
+                                onclick="
+                                    saveProfile(
+                                        ${profile.id}
+                                    )
+                                "
+                            >
+                                Сохранить
+                            </button>
+
+
+                            <button
+                                class="delete-button"
+                                onclick="
+                                    deleteProfile(
+                                        ${profile.id}
+                                    )
+                                "
+                            >
+                                Удалить
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
 }
 
-function saveProfile(id) {
+
+/* =========================
+   SAVE PROFILE
+========================= */
+
+function saveProfile(
+    id
+) {
 
     const profile =
         profiles.find(
-            p => p.id === id
+            p =>
+                p.id === id
         );
+
+
+    if (!profile) {
+        return;
+    }
+
 
     profile.name =
         document.getElementById(
             `name-${id}`
         ).value;
 
+
+    profile.city =
+        document.getElementById(
+            `city-${id}`
+        ).value;
+
+
+    profile.age =
+        Number(
+            document.getElementById(
+                `age-${id}`
+            ).value
+        );
+
+
     profile.description =
         document.getElementById(
             `desc-${id}`
         ).value;
 
-    profile.image =
-        document.getElementById(
-            `image-${id}`
-        ).value;
 
     saveProfiles();
 
+
     renderAdmin();
 
-    alert("Изменения сохранены");
+
+    alert(
+        "Изменения сохранены"
+    );
 
 }
 
-function deleteProfile(id) {
+
+/* =========================
+   DELETE
+========================= */
+
+function deleteProfile(
+    id
+) {
 
     const profile =
         profiles.find(
-            p => p.id === id
+            p =>
+                p.id === id
         );
 
-    if (!confirm(
-        `Удалить анкету "${profile.name}"?`
-    )) {
+
+    if (!profile) {
         return;
     }
 
+
+    if (
+        !confirm(
+            `Удалить анкету "${profile.name}"?`
+        )
+    ) {
+
+        return;
+
+    }
+
+
     profiles =
         profiles.filter(
-            p => p.id !== id
+            p =>
+                p.id !== id
         );
+
 
     favorites =
         favorites.filter(
-            x => x !== id
+            favoriteId =>
+                favoriteId !== id
         );
+
 
     saveProfiles();
 
-    localStorage.setItem(
-        "favorites",
-        JSON.stringify(favorites)
-    );
+    saveFavorites();
+
 
     renderAdmin();
 
 }
 
 
-/* Запуск */
+/* =========================
+   START
+========================= */
 
 showAll();
 
