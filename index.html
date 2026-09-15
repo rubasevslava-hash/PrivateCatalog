@@ -29,6 +29,7 @@ header {
     justify-content: center;
     gap: 10px;
     padding: 10px 20px 20px;
+    flex-wrap: wrap;
 }
 
 button {
@@ -38,6 +39,7 @@ button {
     background: #1b1b23;
     color: white;
     font-size: 15px;
+    cursor: pointer;
 }
 
 button.active {
@@ -95,6 +97,76 @@ button.active {
     color: #888;
     padding: 50px 20px;
 }
+
+.admin-panel {
+    display: none;
+    padding: 20px 15px 50px;
+}
+
+.admin-panel h2 {
+    margin-top: 0;
+}
+
+.admin-card {
+    background: #15151c;
+    padding: 16px;
+    border-radius: 18px;
+    margin-bottom: 15px;
+}
+
+input,
+textarea {
+    width: 100%;
+    background: #1b1b23;
+    color: white;
+    border: 1px solid #33333d;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 6px 0 12px;
+    font-size: 15px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.admin-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-buttons button {
+    flex: 1;
+}
+
+.delete {
+    background: #512020;
+}
+
+.edit {
+    background: #252540;
+}
+
+#loginBox {
+    display: none;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+#loginBox input {
+    max-width: 350px;
+}
+
+.login-error {
+    color: #ff6b6b;
+    margin-top: 10px;
+    display: none;
+}
+
+.back-button {
+    margin-bottom: 15px;
+}
 </style>
 </head>
 
@@ -102,16 +174,78 @@ button.active {
 
 <header>PrivateCatalog</header>
 
-<div class="tabs">
+<div class="tabs" id="mainTabs">
     <button id="allBtn" class="active" onclick="showAll()">Анкеты</button>
     <button id="favBtn" onclick="showFavorites()">Избранное</button>
+    <button onclick="openLogin()">Админ</button>
 </div>
 
 <div id="catalog"></div>
 
+<div id="loginBox">
+    <h2>Вход администратора</h2>
+
+    <input
+        type="password"
+        id="adminPassword"
+        placeholder="Введите пароль"
+    >
+
+    <br>
+
+    <button onclick="loginAdmin()">Войти</button>
+
+    <div id="loginError" class="login-error">
+        Неверный пароль
+    </div>
+
+    <br><br>
+
+    <button onclick="closeLogin()">Назад</button>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+
+    <button class="back-button" onclick="exitAdmin()">
+        ← Вернуться к анкетам
+    </button>
+
+    <h2>Админ-панель</h2>
+
+    <div class="admin-card">
+        <h3>Добавить анкету</h3>
+
+        <input
+            id="newName"
+            placeholder="Имя"
+        >
+
+        <textarea
+            id="newDescription"
+            placeholder="Описание"
+        ></textarea>
+
+        <input
+            id="newImage"
+            placeholder="Ссылка на изображение"
+        >
+
+        <button onclick="addProfile()">
+            + Добавить анкету
+        </button>
+    </div>
+
+    <h3>Существующие анкеты</h3>
+
+    <div id="adminProfiles"></div>
+
+</div>
+
 <script>
 
-const profiles = [
+const ADMIN_PASSWORD = "110123Sex";
+
+const defaultProfiles = [
     {
         id: 1,
         name: "Александра",
@@ -132,72 +266,142 @@ const profiles = [
     }
 ];
 
-let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+let profiles = JSON.parse(
+    localStorage.getItem("profiles")
+) || defaultProfiles;
+
+let favorites = JSON.parse(
+    localStorage.getItem("favorites") || "[]"
+);
+
+function saveProfiles() {
+    localStorage.setItem(
+        "profiles",
+        JSON.stringify(profiles)
+    );
+}
 
 function randomProfiles() {
-    return [...profiles].sort(() => Math.random() - 0.5);
+    return [...profiles].sort(
+        () => Math.random() - 0.5
+    );
 }
 
 function render(list) {
-    const catalog = document.getElementById("catalog");
+
+    const catalog =
+        document.getElementById("catalog");
 
     if (!list.length) {
-        catalog.innerHTML = '<div class="empty">В избранном пока ничего нет</div>';
+
+        catalog.innerHTML =
+            '<div class="empty">В избранном пока ничего нет</div>';
+
         return;
     }
 
     catalog.innerHTML = list.map(profile => `
+
         <div class="card">
-            <img src="${profile.image}">
+
+            <img
+                src="${profile.image}"
+                onerror="this.style.display='none'"
+            >
+
             <div class="info">
-                <div class="name">${profile.name}</div>
-                <div class="description">${profile.description}</div>
+
+                <div class="name">
+                    ${profile.name}
+                </div>
+
+                <div class="description">
+                    ${profile.description}
+                </div>
 
                 <div class="actions">
-                    <button onclick="openProfile(${profile.id})">
+
+                    <button
+                        onclick="openProfile(${profile.id})"
+                    >
                         Открыть
                     </button>
 
-                    <button class="favorite"
-                        onclick="toggleFavorite(${profile.id})">
-                        ${favorites.includes(profile.id)
+                    <button
+                        class="favorite"
+                        onclick="toggleFavorite(${profile.id})"
+                    >
+                        ${
+                            favorites.includes(profile.id)
                             ? "★ В избранном"
-                            : "☆ В избранное"}
+                            : "☆ В избранное"
+                        }
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     `).join("");
 }
 
 function showAll() {
-    document.getElementById("allBtn").classList.add("active");
-    document.getElementById("favBtn").classList.remove("active");
+
+    document.getElementById("allBtn")
+        .classList.add("active");
+
+    document.getElementById("favBtn")
+        .classList.remove("active");
 
     render(randomProfiles());
 }
 
 function showFavorites() {
-    document.getElementById("favBtn").classList.add("active");
-    document.getElementById("allBtn").classList.remove("active");
 
-    render(profiles.filter(p => favorites.includes(p.id)));
+    document.getElementById("favBtn")
+        .classList.add("active");
+
+    document.getElementById("allBtn")
+        .classList.remove("active");
+
+    render(
+        profiles.filter(
+            p => favorites.includes(p.id)
+        )
+    );
 }
 
 function toggleFavorite(id) {
+
     if (favorites.includes(id)) {
-        favorites = favorites.filter(x => x !== id);
+
+        favorites =
+            favorites.filter(
+                x => x !== id
+            );
+
     } else {
+
         favorites.push(id);
+
     }
 
-    localStorage.setItem("favorites", JSON.stringify(favorites));
+    localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites)
+    );
 
     showAll();
 }
 
 function openProfile(id) {
-    const profile = profiles.find(p => p.id === id);
+
+    const profile =
+        profiles.find(
+            p => p.id === id
+        );
 
     alert(
         profile.name +
@@ -205,6 +409,277 @@ function openProfile(id) {
         profile.description
     );
 }
+
+
+/* =========================
+   АДМИНКА
+========================= */
+
+function openLogin() {
+
+    document.getElementById("catalog")
+        .style.display = "none";
+
+    document.getElementById("mainTabs")
+        .style.display = "none";
+
+    document.getElementById("loginBox")
+        .style.display = "block";
+}
+
+function closeLogin() {
+
+    document.getElementById("loginBox")
+        .style.display = "none";
+
+    document.getElementById("catalog")
+        .style.display = "block";
+
+    document.getElementById("mainTabs")
+        .style.display = "flex";
+}
+
+function loginAdmin() {
+
+    const password =
+        document.getElementById(
+            "adminPassword"
+        ).value;
+
+    if (password === ADMIN_PASSWORD) {
+
+        document.getElementById(
+            "loginBox"
+        ).style.display = "none";
+
+        document.getElementById(
+            "adminPanel"
+        ).style.display = "block";
+
+        renderAdmin();
+
+    } else {
+
+        document.getElementById(
+            "loginError"
+        ).style.display = "block";
+
+    }
+}
+
+function exitAdmin() {
+
+    document.getElementById(
+        "adminPanel"
+    ).style.display = "none";
+
+    document.getElementById(
+        "mainTabs"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "catalog"
+    ).style.display = "block";
+
+    document.getElementById(
+        "adminPassword"
+    ).value = "";
+
+    document.getElementById(
+        "loginError"
+    ).style.display = "none";
+
+    showAll();
+}
+
+function addProfile() {
+
+    const name =
+        document.getElementById(
+            "newName"
+        ).value.trim();
+
+    const description =
+        document.getElementById(
+            "newDescription"
+        ).value.trim();
+
+    const image =
+        document.getElementById(
+            "newImage"
+        ).value.trim();
+
+    if (!name || !description || !image) {
+
+        alert("Заполни все поля");
+
+        return;
+    }
+
+    const newProfile = {
+
+        id: Date.now(),
+
+        name: name,
+
+        description: description,
+
+        image: image
+
+    };
+
+    profiles.push(newProfile);
+
+    saveProfiles();
+
+    document.getElementById(
+        "newName"
+    ).value = "";
+
+    document.getElementById(
+        "newDescription"
+    ).value = "";
+
+    document.getElementById(
+        "newImage"
+    ).value = "";
+
+    renderAdmin();
+
+    alert("Анкета добавлена");
+
+}
+
+function renderAdmin() {
+
+    const container =
+        document.getElementById(
+            "adminProfiles"
+        );
+
+    if (!profiles.length) {
+
+        container.innerHTML =
+            "<p>Анкет пока нет.</p>";
+
+        return;
+
+    }
+
+    container.innerHTML =
+        profiles.map(profile => `
+
+        <div class="admin-card">
+
+            <strong>
+                ${profile.name}
+            </strong>
+
+            <br><br>
+
+            <input
+                id="name-${profile.id}"
+                value="${profile.name}"
+            >
+
+            <textarea
+                id="desc-${profile.id}"
+            >${profile.description}</textarea>
+
+            <input
+                id="image-${profile.id}"
+                value="${profile.image}"
+            >
+
+            <div class="admin-buttons">
+
+                <button
+                    class="edit"
+                    onclick="saveProfile(${profile.id})"
+                >
+                    Сохранить
+                </button>
+
+                <button
+                    class="delete"
+                    onclick="deleteProfile(${profile.id})"
+                >
+                    Удалить
+                </button>
+
+            </div>
+
+        </div>
+
+    `).join("");
+}
+
+function saveProfile(id) {
+
+    const profile =
+        profiles.find(
+            p => p.id === id
+        );
+
+    profile.name =
+        document.getElementById(
+            `name-${id}`
+        ).value;
+
+    profile.description =
+        document.getElementById(
+            `desc-${id}`
+        ).value;
+
+    profile.image =
+        document.getElementById(
+            `image-${id}`
+        ).value;
+
+    saveProfiles();
+
+    renderAdmin();
+
+    alert("Изменения сохранены");
+
+}
+
+function deleteProfile(id) {
+
+    const profile =
+        profiles.find(
+            p => p.id === id
+        );
+
+    if (!confirm(
+        `Удалить анкету "${profile.name}"?`
+    )) {
+        return;
+    }
+
+    profiles =
+        profiles.filter(
+            p => p.id !== id
+        );
+
+    favorites =
+        favorites.filter(
+            x => x !== id
+        );
+
+    saveProfiles();
+
+    localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites)
+    );
+
+    renderAdmin();
+
+}
+
+
+/* Запуск */
 
 showAll();
 
